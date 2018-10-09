@@ -28,5 +28,9 @@ bool search_member(string);
 bool search_lecture(string);
 vector<int> search_purchase(string);
 
+bool update_member(string);
+bool update_lecture(string);
+bool update_purchase(string);
+
 bool search_PID(string);
 #endif

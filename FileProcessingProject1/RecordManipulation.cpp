@@ -46,7 +46,7 @@ void delete_memories() {
 		DelimFieldBuffer buffer('|');
 		RecordFile<Member> MemberFile(buffer);
 		char filename[] = "fileOfMember.dat";
-		MemberFile.Open(filename, ios::out | ios::trunc);
+		MemberFile.Create(filename, ios::out | ios::trunc);
 		for (auto it = Members.begin(); it != Members.end(); it++) {
 			if (MemberFile.Write(it->second) == -1)
 				cout << "Write error!" << endl;
@@ -57,7 +57,7 @@ void delete_memories() {
 		DelimFieldBuffer buffer('|');
 		RecordFile<Lecture> LectureFile(buffer);
 		char filename[] = "fileOfLecture.dat";
-		LectureFile.Open(filename, ios::out | ios::trunc);
+		LectureFile.Create(filename, ios::out | ios::trunc);
 		for (auto it = Lectures.begin(); it != Lectures.end(); it++) {
 			if (LectureFile.Write(it->second) == -1)
 				cout << "Write error!" << endl;
@@ -68,7 +68,7 @@ void delete_memories() {
 		DelimFieldBuffer buffer('|');
 		RecordFile<Purchase> PurchaseFile(buffer);
 		char filename[] = "fileOfPurchase.dat";
-		PurchaseFile.Open(filename, ios::out | ios::trunc);
+		PurchaseFile.Create(filename, ios::out | ios::trunc);
 		for (auto it = Purchases.begin(); it != Purchases.end(); it++) {
 			if (PurchaseFile.Write(*it) == -1)
 				cout << "Write error!" << endl;
@@ -223,6 +223,80 @@ void record_search() {
 	delete_memories();
 }
 
+void record_insert() {
+	bool exit_flag = false;
+	bool type_flag = false;
+	purchase_mod = member_mod = lecture_mod = false;
+	vector<int> idx;
+	make_memories();
+	while (!exit_flag) {
+		string search_key;
+		int type;
+		clear_console();
+		type = record_type("Insert");
+		switch (type) {
+		case 1:
+			cout << endl << " Input Member ID : ";
+			cin >> search_key;
+			cin.get();
+			if (search_member(search_key)) {
+				cout << endl << "There's already duplicate Member" << endl;
+			}
+			else {
+				if (update_member(search_key)) {
+					member_mod = true;
+					cout << endl << "Insert Member Record Success" << endl;
+				}
+			}
+			break;
+		case 2:
+			cout << endl << " Input Lecture ID : ";
+			cin >> search_key;
+			cin.get();
+			if (search_lecture(search_key)) {
+				cout << endl << "There's already duplicate Lecture" << endl;
+			}
+			else {
+				if (update_lecture(search_key)) {
+					lecture_mod = true;
+					cout << endl << "Insert Lecture Record Success" << endl;
+				}
+			}
+			break;
+		case 3:
+			cout << endl << " Input Purchase ID : ";
+			cin >> search_key;
+			cin.get();
+			if (search_PID(search_key)) {
+				cout << endl << "There's already duplicate Purchase" << endl;
+			}
+			else {
+				if (update_purchase(search_key)) {
+					purchase_mod = true;
+					cout << endl << "Insert Purchase Record Success" << endl;
+				}
+			}
+			break;
+		case 4:
+			exit_flag = true; break;
+		default:
+			cout << endl << "Please Input Correctly" << endl; break;
+		}
+		cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+		cin.get();
+		clear_console();
+	}
+	delete_memories();
+}
+
+void record_delete() {
+
+}
+
+void record_update() {
+
+}
+
 bool search_member(string key) {
 	if (Members.find(key) != Members.end())
 		return true;
@@ -240,7 +314,7 @@ bool search_lecture(string key) {
 vector<int> search_purchase(string key) {
 	vector<int> ret;
 	int i = 0;
-	for (auto it = Purchases.begin(); it != Purchases.end(); it++,i++) {
+	for (auto it = Purchases.begin(); it != Purchases.end(); it++, i++) {
 		if (!key.compare(it->get_PID()))
 			ret.push_back(i);
 		else if (!key.compare(it->get_MID()))
@@ -258,14 +332,101 @@ bool search_PID(string key) {
 	return false;
 }
 
-void record_insert() {
+bool update_member(string key) {
+	Member M;
+	char buffer[STDMAXBUF];
+	char *ptr, *context = NULL;
+	cout << endl << "Please Input Information follow format" << endl;
+	cout << endl << "Password|Name|PheonNumber|Address|Mileage" << endl;
+	cout << endl << "EX) 1234|Gildong|010-1234-5678|Seoul|0000043000" << endl << endl;
+	
+	cin >> buffer;
+	cin.get();
+	M.update_ID(key);
+	
+	ptr = strtok_s(buffer, "|", &context);
+	if (!ptr) { cout << "Password Error!" << endl; return false; }
+	M.update_Password(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Name Error!" << endl; return false; }
+	M.update_Name(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "PhoneNumber Error!" << endl; return false; }
+	M.update_PhoneNumber(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Address Error!" << endl; return false; }
+	M.update_Address(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Mileage Error!" << endl; return false; }
+	M.update_Mileage(string(ptr));
+	
+	Members[key] = M;
 
+	return true;
 }
 
-void record_delete() {
+bool update_lecture(string key) {
+	Lecture L;
+	char buffer[STDMAXBUF];
+	char *ptr, *context = NULL;
+	cout << endl << "Please Input Information follow format" << endl;
+	cout << endl << "Subject|Level|Price|Extension|DueDate|NameOfTeacher|Textbook" << endl;
+	cout << endl << "EX) FileProcessing|A|300,000|B|90|ParkSuk|FileStructure" << endl << endl;
 
+	cin >> buffer;
+	cin.get();
+	L.update_ID(key);
+
+	ptr = strtok_s(buffer, "|", &context);
+	if (!ptr) { cout << "Subject Error!" << endl; return false; }
+	L.update_Subject(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Level Error!" << endl; return false; }
+	L.update_level(ptr[0]);
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Price Error!" << endl; return false; }
+	L.update_Price(commaDecimalToInt(string(ptr)));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Extension Error!" << endl; return false; }
+	L.update_Extension(ptr[0]);
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "DueDate Error!" << endl; return false; }
+	L.update_dueDate(commaDecimalToInt(string(ptr)));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "NameOfTecher Error!" << endl; return false; }
+	L.update_nameOfTeacher(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "TextBook Error!" << endl; return false; }
+	L.update_Textbook(string(ptr));
+
+	Lectures[key] = L;
+
+	return true;
 }
 
-void record_update() {
+bool update_purchase(string key) {
+	Purchase P;
+	char buffer[STDMAXBUF];
+	char *ptr, *context = NULL;
+	cout << endl << "Please Input Information follow format" << endl;
+	cout << endl << "LecutreID|MemberID|Mileage" << endl;
+	cout << endl << "EX) 123456789012|MID_1000|0000009000" << endl << endl;
 
+	cin >> buffer;
+	cin.get();
+	P.update_purchaseID(key);
+
+	ptr = strtok_s(buffer, "|", &context);
+	if (!ptr) { cout << "LectureID Error!" << endl; return false; }
+	P.update_lectureID(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "MemberID Error!" << endl; return false; }
+	P.update_memberID(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Mileage Error!" << endl; return false; }
+	P.update_Mileage(string(ptr));
+
+	Purchases.push_back(P);
+
+	return true;
 }

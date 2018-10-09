@@ -54,7 +54,7 @@ void menu() {
 	cout << " 4. MemberTest" << endl;
 	cout << " 5. LectureTest" << endl;
 	cout << " 6. PurchaseTest" << endl;
-	cout << " 7. Record Manipulation" << endl;
+	cout << " 7. LecturePurchaseSystem" << endl;
 	cout << " 8. EXIT" << endl;
 	cout << "******************************" << endl;
 }

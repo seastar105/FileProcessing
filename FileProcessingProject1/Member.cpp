@@ -114,3 +114,7 @@ bool Member::Pack(IOBuffer & Buffer) const {
 
 	return true;
 }
+
+string Member::get_ID() {
+	return ID;
+}

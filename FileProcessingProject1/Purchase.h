@@ -33,6 +33,10 @@ public:
 	void update_lectureID(const string new_lectureID) { lectureID = new_lectureID; }
 	void update_memberID(const string new_memberID) { memberID = new_memberID; }
 	void update_Mileage(const string new_mileage) { Mileage = new_mileage; }
+
+	string get_PID();
+	string get_MID();
+	string get_LID();
 };
 
 #endif

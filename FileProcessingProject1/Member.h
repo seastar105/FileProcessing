@@ -37,6 +37,8 @@ public:
 	void update_PhoneNumber(const string new_phonenumber) { PhoneNumber = new_phonenumber; }
 	void update_Address(const string new_address) { Address = new_address; }
 	void update_Mileage(const string new_mileage) { this->Mileage = new_mileage; }
+
+	string get_ID();
 };
 
 #endif

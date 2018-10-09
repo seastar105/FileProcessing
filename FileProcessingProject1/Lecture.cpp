@@ -156,3 +156,7 @@ bool Lecture::Pack(IOBuffer &Buffer) const {
 
 	return true;
 }
+
+string Lecture::get_ID() {
+	return ID;
+}

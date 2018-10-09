@@ -1,7 +1,7 @@
 #include"test.h"
 #include"shell.h"
 
-#define DATA
+//#define DATA
 #ifndef DATA
 int main() {
 

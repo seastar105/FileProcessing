@@ -96,3 +96,15 @@ bool Purchase::Pack(IOBuffer &Buffer) const {
 
 	return true;
 }
+
+string Purchase::get_PID() {
+	return purchaseID;
+}
+
+string Purchase::get_LID() {
+	return lectureID;
+}
+
+string Purchase::get_MID() {
+	return memberID;
+}

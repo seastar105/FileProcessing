@@ -24,6 +24,7 @@
     <ClInclude Include="iobuffer.h" />
     <ClInclude Include="Lecture.h" />
     <ClInclude Include="Member.h" />
+    <ClInclude Include="RecordManipulation.h" />
     <ClInclude Include="shell.h" />
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="recfile.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="Lecture.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Member.cpp" />
+    <ClCompile Include="RecordManipulation.cpp" />
     <ClCompile Include="shell.cpp" />
     <ClCompile Include="Purchase.cpp" />
     <ClCompile Include="TestPrograms.cpp" />

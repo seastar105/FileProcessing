@@ -22,7 +22,7 @@ void shell() {
 		case 4:MemberTest(); break;
 		case 5:LectureTest(); break;
 		case 6:PurchaseTest(); break;
-		case 7:admin_flag = true; shell_admin(); break;
+		case 7:admin_flag = true; LecturePurchaseSystem(); break;
 		case 8:exit_flag = true; return;
 		default:
 			cout << endl << "Please input correctly" << endl;  break;
@@ -37,28 +37,17 @@ void shell() {
 	}
 }
 
-void shell_admin() {
-	clear_console();
-}
-
-void admin_menu() {
-
-}
-
 void menu() {
-	cout << "   File Processing Project 1  " << endl;
 	cout << "******************************" << endl;
-	cout << " 1. ShowMember" << endl;
-	cout << " 2. ShwoLecture" << endl;
-	cout << " 3. ShowPurchase" << endl;
-	cout << " 4. MemberTest" << endl;
-	cout << " 5. LectureTest" << endl;
-	cout << " 6. PurchaseTest" << endl;
-	cout << " 7. LecturePurchaseSystem" << endl;
-	cout << " 8. EXIT" << endl;
+	cout << "*  File Processing Project 1 *" << endl;
 	cout << "******************************" << endl;
-}
-
-void clear_console() {
-	system("cls");
+	cout << "* 1. ShowMember              *" << endl;
+	cout << "* 2. ShwoLecture             *" << endl;
+	cout << "* 3. ShowPurchase            *" << endl;
+	cout << "* 4. MemberTest              *" << endl;
+	cout << "* 5. LectureTest             *" << endl;
+	cout << "* 6. PurchaseTest            *" << endl;
+	cout << "* 7. LecturePurchaseSystem   *" << endl;
+	cout << "* 8. EXIT                    *" << endl;
+	cout << "******************************" << endl;
 }

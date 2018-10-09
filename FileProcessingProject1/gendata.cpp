@@ -7,7 +7,7 @@
 #include<ctime>
 #include<vector>
 
-#define DATA
+//#define DATA
 #define NUM_MEMBER 10
 #define NUM_LECTURE 10
 #define NUM_PURCHASE 10
@@ -51,8 +51,8 @@ int main() {
 	fp << NUM_LECTURE << endl;
 	for (int i = 0; i < NUM_LECTURE; i++) {
 		string ID, Subject, Teacher, Textbook;
-		for (int j = 0; j < 8; j++)
-			ID += rand() % 10 + '0';
+		for (int j = 0; j < 12 - to_string(i).size(); j++)
+			ID += '0';
 		ID += to_string(i);
 		while (ID.size() < 12)
 			ID += "0";
@@ -79,8 +79,11 @@ int main() {
 		string PID, LID, MID,Mileage;
 		MID = MEMBERS.at(rand() % NUM_MEMBER);
 		LID = LECTURES.at(rand() % NUM_LECTURE);
-		for (int j = 0; j < 16; j++)
-			PID += rand() % 10 + '0';
+		for (int j = 0; j < 8; j++)
+			PID += "0";
+		PID += to_string(i);
+		for (int j = PID.size(); j < 16; j++)
+			PID += "0";
 		Mileage = "000000";
 		Mileage += rand() % 9 + '1';
 		Mileage += "000";

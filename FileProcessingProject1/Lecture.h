@@ -43,6 +43,7 @@ public:
 	void update_Textbook(const string new_textbook) { Textbook = new_textbook; }
 
 	string format_price();
+	string get_ID();
 };
 
 #endif

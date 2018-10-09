@@ -292,7 +292,7 @@ void record_insert() {
 void record_delete() {
 	bool exit_flag = false;
 	bool type_flag = false;
-	int n, i;
+	int n;
 	vector<int> idx;
 	make_memories();
 	while (!exit_flag) {
@@ -368,7 +368,69 @@ void record_delete() {
 }
 
 void record_update() {
-
+	bool exit_flag = false;
+	bool type_flag = false;
+	purchase_mod = member_mod = lecture_mod = false;
+	vector<int> idx;
+	make_memories();
+	while (!exit_flag) {
+		string search_key;
+		int type;
+		clear_console();
+		type = record_type("Insert");
+		switch (type) {
+		case 1:
+			cout << endl << " Input Member ID : ";
+			cin >> search_key;
+			cin.get();
+			if (!search_member(search_key)) {
+				cout << endl << "There's no Such Member" << endl;
+			}
+			else {
+				if (update_member(search_key)) {
+					member_mod = true;
+					cout << endl << "Update Member Record Success" << endl;
+				}
+			}
+			break;
+		case 2:
+			cout << endl << " Input Lecture ID : ";
+			cin >> search_key;
+			cin.get();
+			if (!search_lecture(search_key)) {
+				cout << endl << "There's no Such Lecture" << endl;
+			}
+			else {
+				if (update_lecture(search_key)) {
+					lecture_mod = true;
+					cout << endl << "Update Lecture Record Success" << endl;
+				}
+			}
+			break;
+		case 3:
+			cout << endl << " Input Purchase ID : ";
+			cin >> search_key;
+			cin.get();
+			if (!search_PID(search_key)) {
+				cout << endl << "There's no Such Purchase" << endl;
+			}
+			else {
+				if (update_purchase(search_key)) {
+					purchase_mod = true;
+					cout << endl << "Update Purchase Record Success" << endl;
+				}
+			}
+			break;
+		case 4:
+			exit_flag = true; break;
+		default:
+			cout << endl << "Please Input Correctly" << endl; break;
+		}
+		cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+		cin.get();
+		clear_console();
+	}
+	delete_memories();
 }
 
 bool search_member(string key) {
@@ -499,7 +561,12 @@ bool update_purchase(string key) {
 	ptr = strtok_s(NULL, "|", &context);
 	if (!ptr) { cout << "Mileage Error!" << endl; return false; }
 	P.update_Mileage(string(ptr));
-
+	for (auto it = Purchases.begin(); it != Purchases.end(); it++) {
+		if (!key.compare(it->get_PID())) {
+			*it = P;
+			return true;
+		}
+	}
 	Purchases.push_back(P);
 
 	return true;

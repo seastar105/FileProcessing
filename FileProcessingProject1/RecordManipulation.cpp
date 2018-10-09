@@ -209,7 +209,7 @@ void record_search() {
 				}
 			}
 			else
-				cout << endl << "There's no Suct Purchase" << endl;
+				cout << endl << "There's no Such Purchase" << endl;
 			break;
 		case 4:
 			exit_flag = true; break;
@@ -290,7 +290,81 @@ void record_insert() {
 }
 
 void record_delete() {
-
+	bool exit_flag = false;
+	bool type_flag = false;
+	int n, i;
+	vector<int> idx;
+	make_memories();
+	while (!exit_flag) {
+		string search_key;
+		int type;
+		clear_console();
+		type = record_type("Delete");
+		switch (type) {
+		case 1:
+			cout << endl << " Input Member ID : ";
+			cin >> search_key;
+			cin.get();
+			if (search_member(search_key)) {
+				idx = search_purchase(search_key);
+				n = 0;
+				for (auto it = idx.begin(); it != idx.end(); it++) {
+					purchase_mod = true;
+					Purchases.erase(Purchases.begin() + *it - n);
+					n++;
+				}
+				Members.erase(search_key);
+				member_mod = true;
+				cout << endl << "Delete Member Record and " << n << " Purchase Record(s) Successfully" << endl;
+			}
+			else
+				cout << endl << "There's no such Member" << endl;
+			break;
+		case 2:
+			cout << endl << " Input Lecture ID : ";
+			cin >> search_key;
+			cin.get();
+			if (search_lecture(search_key)) {
+				idx = search_purchase(search_key);
+				n = 0;
+				for (auto it = idx.begin(); it != idx.end(); it++) {
+					purchase_mod = true;
+					Purchases.erase(Purchases.begin() + *it - n);
+					n++;
+				}
+				Lectures.erase(search_key);
+				lecture_mod = true;
+				cout << endl << "Delete Lecture Record and " << n << " Purchase Record(s) Successfully" << endl;
+			}
+			else
+				cout << endl << "There's no such Lecture" << endl;
+			break;
+		case 3:
+			cout << endl << " Input Purchase ID : ";
+			cin >> search_key;
+			cin.get();
+			idx = search_purchase(search_key);
+			if(search_PID(search_key)) {
+				for (auto it = Purchases.begin(); it != Purchases.end(); it++)
+					if (!search_key.compare(it->get_PID())) {
+						Purchases.erase(it); break;
+					}
+				purchase_mod = true;
+				cout << endl << "Delete 1 Purchase Record Successfully" << endl;
+			}
+			else
+				cout << endl << "There's no Such Purchase" << endl;
+			break;
+		case 4:
+			exit_flag = true; break;
+		default:
+			cout << endl << "Please Input Correctly" << endl; break;
+		}
+		cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+		cin.get();
+		clear_console();
+	}
+	delete_memories();
 }
 
 void record_update() {

@@ -8,9 +8,9 @@
 #include<vector>
 
 //#define DATA
-#define NUM_MEMBER 10
-#define NUM_LECTURE 10
-#define NUM_PURCHASE 10
+#define NUM_MEMBER 1000
+#define NUM_LECTURE 1000
+#define NUM_PURCHASE 10000
 #define MAXBUF 256
 using namespace std;
 

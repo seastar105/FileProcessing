@@ -7,9 +7,9 @@
 #include<ctime>
 #include<vector>
 
-//#define DATA
-#define NUM_MEMBER 1000
-#define NUM_LECTURE 1000
+#define DATA
+#define NUM_MEMBER 10
+#define NUM_LECTURE 10
 #define NUM_PURCHASE 10
 #define MAXBUF 256
 using namespace std;
@@ -33,19 +33,11 @@ int main() {
 	for (int i = 0; i < NUM_MEMBER; i++) {
 		string ID, PW, Name, PH, Address,Mileage;
 		for (int j = 0; j < 8; j++) {
-			ID += rand() % 26 + 'a';
 			PW += rand() % 10 + '0';
 		}
-		ID += to_string(i);
+		ID = "MID_00" + to_string(i);
 		MEMBERS.push_back(ID);
-		int temp;
-		temp = rand() % 8 + 1;
-		if(temp < 5) temp = 5;
-		for (int j = 0; j < temp; j++)
-			Name += rand() % 26 + 'a';
-		Name += " ";
-		for (int j = 0; j < 10 - temp; j++)
-			Name += rand() % 26 + 'a';
+		Name = "MNAME_" + to_string(i);
 		sprintf(buffer, "010-%04d-%04d", rand() % 10000, rand() % 10000);
 		PH = buffer;
 		Address = "Seoul";
@@ -74,16 +66,8 @@ int main() {
 		if (rand() % 2) extension = 'Y'; else extension = 'N';
 		int duedate;
 		if (rand() % 3 == 0) duedate = 1; else if (rand() % 2) duedate = 2; else duedate = 3;
-		int temp;
-		temp = rand() % 8 + 1;
-		if (temp < 5) temp = 5;
-		for (int j = 0; j < temp; j++)
-			Teacher += rand() % 26 + 'a';
-		Teacher += " ";
-		for (int j = 0; j < 10 - temp; j++)
-			Teacher += rand() % 26 + 'a';
-		for (int j = 0; j < 16; j++)
-			Textbook += rand() % 26 + 'a';
+		Teacher = "TNAME_" + to_string(i);
+		Textbook = Subject + " Book";
 		fp << ID << "|" << Subject << "|" << level << "|" << Price << "|" << extension << "|" << duedate*30 << "|" << Teacher << "|" << Textbook << endl;
 	}
 	fp.close();

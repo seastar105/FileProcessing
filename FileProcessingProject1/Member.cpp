@@ -2,16 +2,16 @@
 #include <sstream>
 
 Member::Member() {
-	
 }
 
-Member::Member(const string ID, const string Password, const string Name, const string PhoneNumber, const string Address,const string Mileage) {
+Member::Member(const string ID, const string Password, const string Name, const string PhoneNumber, const string Address,const string Mileage,const int level) {
 	this->ID = ID;
 	this->Password = Password;
 	this->Name = Name;
 	this->PhoneNumber = PhoneNumber;
 	this->Address = Address;
 	this->Mileage = Mileage;
+	this->level = level;
 }
 
 Member& Member::operator=(const Member &m) {
@@ -21,7 +21,7 @@ Member& Member::operator=(const Member &m) {
 	update_PhoneNumber(m.PhoneNumber);
 	update_Address(m.Address);
 	update_Mileage(m.Mileage);
-
+	this->level = m.level;
 	return *this;
 }
 
@@ -56,6 +56,8 @@ istream & operator >> (istream &is, Member &s) {
 	ptr = strtok_s(NULL, "|", &context);
 	s.Mileage = string(ptr);
 	ptr = strtok_s(NULL, "|", &context);
+	s.level = ptr[0] - '0';
+	ptr = strtok_s(NULL, "|", &context);
 	delete[] buffer;
 	if (ptr) cout << "error" << endl;
 
@@ -64,7 +66,7 @@ istream & operator >> (istream &is, Member &s) {
 
 ostream & operator << (ostream &os, Member &s) {
 	char sep = ', ';
-	os << s.ID << sep << s.Password << sep << s.Name << sep << s.PhoneNumber << sep << s.Address << sep << s.Mileage << endl;
+	os << s.ID << sep << s.Password << sep << s.Name << sep << s.PhoneNumber << sep << s.Address << sep << s.Mileage << sep << s.level << endl;
 	return os;
 }
 
@@ -75,28 +77,37 @@ bool Member::Unpack(IOBuffer &Buffer) {
 	numBytes = Buffer.Unpack(buf, STDMAXBUF);
 	if (numBytes == -1) return false;
 	this->ID = string(buf, numBytes);
+
 	numBytes = Buffer.Unpack(buf, STDMAXBUF);
 	if (numBytes == -1) return false;
 	this->Password = string(buf, numBytes);
+
 	numBytes = Buffer.Unpack(buf, STDMAXBUF);
 	if (numBytes == -1) return false;
 	this->Name = string(buf, numBytes);
+
 	numBytes = Buffer.Unpack(buf, STDMAXBUF);
 	if (numBytes == -1) return false;
 	this->PhoneNumber = string(buf, numBytes);
+
 	numBytes = Buffer.Unpack(buf, STDMAXBUF);
 	if (numBytes == -1) return false;
 	this->Address = string(buf, numBytes);
+
 	numBytes = Buffer.Unpack(buf, STDMAXBUF);
 	if (numBytes == -1) return false;
 	this->Mileage = string(buf, numBytes);
+
+	numBytes = Buffer.Unpack(buf, STDMAXBUF);
+	if (numBytes == -1) return false;
+	this->level = buf[0] - '0';
 
 	return true;
 }
 
 bool Member::Pack(IOBuffer & Buffer) const {
 	int numBytes;
-
+	string s_level = to_string(level);
 	Buffer.Clear();
 
 	numBytes = Buffer.Pack(ID.c_str());
@@ -110,6 +121,8 @@ bool Member::Pack(IOBuffer & Buffer) const {
 	numBytes = Buffer.Pack(Address.c_str());
 	if (numBytes == -1) return false;
 	numBytes = Buffer.Pack(Mileage.c_str());
+	if (numBytes == -1) return false;
+	numBytes = Buffer.Pack(s_level.c_str());
 	if (numBytes == -1) return false;
 
 	return true;

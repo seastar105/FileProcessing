@@ -14,7 +14,7 @@ void showMember() {
 
 	ifs >> n;
 	ifs.ignore(numeric_limits<streamsize>::max(), '\n');
-	cout << "(ID,PASSWORD,NAME,PHONENUBMER,ADDRESS,MILEAGE)" << endl;
+	cout << "(ID,PASSWORD,NAME,PHONENUBMER,ADDRESS,MILEAGE,LEVEL)" << endl;
 	for (int i = 0; i < 10; i++) {
 		ifs >> ptr;
 		cout << ptr;

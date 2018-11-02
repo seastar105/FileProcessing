@@ -10,6 +10,35 @@ bool purchase_mod = false;
 
 using namespace std;
 
+void admin_menu() {
+
+}
+
+void general_menu(Member & m) {
+
+}
+
+void login_window() {
+	string ID, PW;
+	cout << "******************************" << endl;
+	cout << "* Login Window               *" << endl;
+	cout << "******************************" << endl;
+	cout << "ID : ";
+	cin >> ID;
+	cout << "PW : ";
+	cin >> PW;
+	// if admin
+	if (!ID.compare("admin)") && !PW.compare("adminpass")) {
+		admin_menu();
+	}
+	else if (search_member(ID)) {
+		general_menu(Members.find(ID)->second);
+	}
+	else {
+		cout << "Login Failed" << endl;
+	}
+}
+
 void make_memories() {
 	char f1[] = "fileOfMember.dat";
 	char f2[] = "fileOfLecture.dat";
@@ -137,6 +166,7 @@ void LecturePurchaseSystem() {
 		string buf;
 		int selection;
 		clear_console();
+		//login_window();											// implement admin menu, and general menu in loginwindow
 		purchase_menu();
 		cout << endl << "Input : ";
 		cin >> buf;

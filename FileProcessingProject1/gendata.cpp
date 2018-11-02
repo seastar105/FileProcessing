@@ -6,8 +6,8 @@
 #include<cstdlib>
 #include<ctime>
 #include<vector>
+#include"shell.h"
 
-//#define DATA
 #define NUM_MEMBER 1000
 #define NUM_LECTURE 1000
 #define NUM_PURCHASE 10000
@@ -30,7 +30,11 @@ int main() {
 	ofstream fp;
 	fp.open(member);
 	fp << NUM_MEMBER << endl;
-	for (int i = 0; i < NUM_MEMBER; i++) {
+	fp << "TestUser|T1234|Test|010-1234-1234|Seoul|0000010000|9" << endl;
+	fp << "admin|adminpass|admin|010-1111-1111|Seoul|9999999999|1" << endl;
+	MEMBERS.push_back(string("admin"));
+	MEMBERS.push_back(string("TestUser"));
+	for (int i = 2; i < NUM_MEMBER; i++) {
 		string ID, PW, Name, PH, Address,Mileage;
 		for (int j = 0; j < 8; j++) {
 			PW += rand() % 10 + '0';
@@ -43,7 +47,7 @@ int main() {
 		Address = "Seoul";
 		for (int j = 0; j < 10; j++)
 			Mileage += rand() % 10 + '0';
-		fp << ID << "|" << PW << "|" << Name << "|" << PH << "|" << Address << "|" << Mileage << "|" << endl;
+		fp << ID << "|" << PW << "|" << Name << "|" << PH << "|" << Address << "|" << Mileage << "|" << "9" << endl;
 	}
 	fp.close();
 	// lecture write
@@ -71,13 +75,14 @@ int main() {
 		fp << ID << "|" << Subject << "|" << level << "|" << Price << "|" << extension << "|" << duedate*30 << "|" << Teacher << "|" << Textbook << endl;
 	}
 	fp.close();
-
 	// purchase write
 	fp.open(purchase);
 	fp << NUM_PURCHASE << endl;
 	for (int i = 0; i < NUM_PURCHASE; i++) {
+		int a = rand() %  NUM_MEMBER;
 		string PID, LID, MID,Mileage;
-		MID = MEMBERS.at(rand() % NUM_MEMBER);
+		while (a == 0) a = rand() % NUM_MEMBER;
+		MID = MEMBERS.at(a);
 		LID = LECTURES.at(rand() % NUM_LECTURE);
 		for (int j = 0; j < 8; j++)
 			PID += "0";

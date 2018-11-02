@@ -33,4 +33,8 @@ bool update_lecture(string);
 bool update_purchase(string);
 
 bool search_PID(string);
+
+void login_window();
+void admin_menu();
+void general_menu(Member &);
 #endif

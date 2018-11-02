@@ -20,6 +20,8 @@ class Lecture {
 	int dueDate;
 	string nameOfTeacher;
 	string Textbook;
+
+	string key;
 public:
 	Lecture();
 
@@ -44,6 +46,8 @@ public:
 
 	string format_price();
 	string get_ID();
+
+	char *Key();
 };
 
 #endif

@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClInclude Include="buffile.h" />
     <ClInclude Include="delim.h" />
+    <ClInclude Include="fixfld.h" />
+    <ClInclude Include="fixlen.h" />
+    <ClInclude Include="indfile.h" />
     <ClInclude Include="iobuffer.h" />
     <ClInclude Include="Lecture.h" />
     <ClInclude Include="Member.h" />
@@ -29,11 +32,15 @@
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="recfile.h" />
     <ClInclude Include="test.h" />
+    <ClInclude Include="textind.h" />
+    <ClInclude Include="tindbuff.h" />
     <ClInclude Include="varlen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="buffile.cpp" />
     <ClCompile Include="delim.cpp" />
+    <ClCompile Include="fixfld.cpp" />
+    <ClCompile Include="fixlen.cpp" />
     <ClCompile Include="gendata.cpp" />
     <ClCompile Include="iobuffer.cpp" />
     <ClCompile Include="Lecture.cpp" />
@@ -43,6 +50,8 @@
     <ClCompile Include="shell.cpp" />
     <ClCompile Include="Purchase.cpp" />
     <ClCompile Include="TestPrograms.cpp" />
+    <ClCompile Include="textind.cpp" />
+    <ClCompile Include="tindbuff.cpp" />
     <ClCompile Include="varlen.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

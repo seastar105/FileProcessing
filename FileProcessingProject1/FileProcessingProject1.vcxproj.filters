@@ -48,6 +48,21 @@
     <ClInclude Include="RecordManipulation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="tindbuff.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="indfile.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="fixfld.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="textind.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="fixlen.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Member.cpp">
@@ -84,6 +99,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="RecordManipulation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="fixlen.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="fixfld.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="textind.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="tindbuff.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

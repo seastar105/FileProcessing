@@ -16,6 +16,8 @@ class Purchase {
 	string lectureID;
 	string memberID;
 	string Mileage;
+
+	string key;
 public:
 	Purchase();
 
@@ -37,6 +39,8 @@ public:
 	string get_PID();
 	string get_MID();
 	string get_LID();
+
+	char *Key();
 };
 
 #endif

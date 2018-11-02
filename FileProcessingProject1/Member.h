@@ -16,10 +16,13 @@ class Member {
 	string PhoneNumber;
 	string Address;
 	string Mileage;
+
+	string key;
+	int level;
 public:
 	Member();
 
-	Member(const string, const string, const string, const string, const string, const string);
+	Member(const string, const string, const string, const string, const string, const string,const int);
 
 	Member &operator=(const Member &);
 	bool operator==(const Member &);
@@ -37,8 +40,9 @@ public:
 	void update_PhoneNumber(const string new_phonenumber) { PhoneNumber = new_phonenumber; }
 	void update_Address(const string new_address) { Address = new_address; }
 	void update_Mileage(const string new_mileage) { this->Mileage = new_mileage; }
-
 	string get_ID();
+
+	char *Key();
 };
 
 #endif

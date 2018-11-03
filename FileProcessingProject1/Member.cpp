@@ -21,7 +21,7 @@ Member& Member::operator=(const Member &m) {
 	update_PhoneNumber(m.PhoneNumber);
 	update_Address(m.Address);
 	update_Mileage(m.Mileage);
-	this->level = m.level;
+	update_Level(m.level);
 	return *this;
 }
 
@@ -130,4 +130,8 @@ bool Member::Pack(IOBuffer & Buffer) const {
 
 string Member::get_ID() {
 	return ID;
+}
+
+string Member::get_PW() {
+	return Password;
 }

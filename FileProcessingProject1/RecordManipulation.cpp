@@ -11,32 +11,282 @@ bool purchase_mod = false;
 using namespace std;
 
 void admin_menu() {
+	LecturePurchaseSystem();
+}
 
+void general_system() {
+	cout << "**************************************" << endl;
+	cout << "* PurchaseLectureSystem - General    *" << endl;
+	cout << "**************************************" << endl;
+	cout << "* 1. Member Information              *" << endl;
+	cout << "* 2. Search Lecture                  *" << endl;
+	cout << "* 3. Purchase Manipulation           *" << endl;
+	cout << "* 4. Exit                            *" << endl;
+	cout << "**************************************" << endl;
+}
+
+bool member_information(Member &m) {
+	string buf;
+	int selection;
+	clear_console();
+	cout << "**************************************" << endl;
+	cout << "* 1. Modify my information           *" << endl;
+	cout << "* 2. Delete my information           *" << endl;
+	cout << "* 3. Return                          *" << endl;
+	cout << "**************************************" << endl;
+	cout << endl << "Input : ";
+	cin >> buf; cin.get();
+	if (buf.size() == 1) selection = buf.at(0) - '0';
+	else selection = -1;
+	switch (selection) {
+	case 1:
+		if (update_member(m.get_ID())) {
+			cout << "Update Success, Press Enter....";
+		}
+		else {
+			cout << endl << "Update Failed, Press Enter...";
+		}
+		cin.get();
+		return true;
+	case 2:
+		delete_member(m.get_ID());
+		cout << endl << "Press Enter...";
+		cin.get();
+		return false;
+	case 3:
+		return true;
+	}
+}
+
+void search_lecture() {
+	string search_key;
+	cout << endl << " Input Lecture ID : ";
+	cin >> search_key;
+	cin.get();
+	if (search_lecture(search_key)) {
+		cout << endl << Lectures.find(search_key)->second;
+	}
+	else
+		cout << endl << "There's no such Lecture" << endl;
+
+	cout << endl << "Press Enter...";
+	cin.get();
+}
+
+void purchase_manipulation(string key) {
+	bool exit_flag = false;
+	bool action_flag = false;
+	vector<int> idx;
+	int n;
+	while (!exit_flag) {
+		string buf;
+		int selection;
+		clear_console();
+		cout << "**************************************" << endl;
+		cout << "* 1. Show My Purchases               *" << endl;
+		cout << "* 2. Insert Purchase                 *" << endl;
+		cout << "* 3. Modify My Purchase              *" << endl;
+		cout << "* 4. Delete My Purchase              *" << endl;
+		cout << "* 5. Exit                            *" << endl;
+		cout << "**************************************" << endl;
+		cout << endl << "Input : ";
+		cin >> buf;
+		cin.get();
+		if (buf.size() == 1) selection = buf.at(0) - '0';
+		else selection = -1;
+		switch (selection) {
+		case 1:
+			action_flag = true; 	
+			idx = search_purchase(key);
+			if (idx.size() != 0) {
+				cout << endl;
+				for (auto it = idx.begin(); it != idx.end(); it++) {
+					cout << Purchases.at(*it);
+				}
+			}
+			else
+				cout << endl << "There's no Purchase" << endl;
+			break;
+		case 2:
+			action_flag = true;
+			cout << endl << "Input Purchase ID : ";
+			cin >> buf;
+			cin.get();
+			if (search_PID(buf)) {
+				cout << "Duplicate Purchase ID" << endl;
+			}
+			else {
+				Purchase P;
+				char buffer[STDMAXBUF];
+				char *ptr, *context = NULL;
+				cout << endl << "Please Input Information follow format" << endl;
+				cout << endl << "LectureID|MemberID|Mileage" << endl;
+				cout << endl << "EX) 123456789012|MID_1000|0000009000" << endl << endl;
+
+				cin >> buffer;
+				cin.get();
+				P.update_purchaseID(key);
+
+				ptr = strtok_s(buffer, "|", &context);
+				if (!ptr || !search_lecture(string(ptr))) { cout << "There's no such Lecture ID!" << endl; break; }
+				P.update_lectureID(string(ptr));
+				ptr = strtok_s(NULL, "|", &context);
+				if (!ptr || !search_member(string(ptr))) { cout << "There's no such Lecture ID!" << endl; break; }
+				if (key.compare(string(ptr))) { cout << "You Can only insert your infromation" << endl; break; }
+				P.update_memberID(string(ptr));
+				ptr = strtok_s(NULL, "|", &context);
+				if (!ptr) { cout << "Mileage Error!" << endl; break; }
+				P.update_Mileage(string(ptr));
+				purchase_mod == true;
+				Purchases.push_back(P);
+			}
+			break;
+		case 3:
+			action_flag = true;
+			cout << endl << "Input Purchase ID : ";
+			cin >> buf;
+			cin.get(); 
+			if (!search_PID(buf)) {
+				cout << "There's no such Purchase ID" << endl;
+			}
+			else {
+				idx = search_purchase(buf);
+				string MID = Purchases.at(idx.at(0)).get_MID();
+				if (key.compare(MID)) {
+					cout << "It's not your purchase" << endl;
+					break;
+				}
+				char buffer[STDMAXBUF];
+				char *ptr, *context = NULL;
+				cout << endl << "Please Input Information follow format" << endl;
+				cout << endl << "LectureID|Mileage" << endl;
+				cout << endl << "EX) 123456789012|0000009000" << endl << endl;
+				Purchase P;
+				P.update_memberID(MID);
+				P.update_purchaseID(string(buf));
+				cin >> buffer;
+				cin.get();
+				ptr = strtok_s(buffer, "|", &context);
+				if (!ptr || !search_lecture(string(ptr))) { cout << "There's no such Lecture ID!" << endl; break; }
+				P.update_lectureID(string(ptr));
+				ptr = strtok_s(NULL, "|", &context);
+				if (!ptr) { cout << "Mileage Error!" << endl; break; }
+				P.update_Mileage(string(ptr));
+				for (auto it = Purchases.begin(); it != Purchases.end(); it++) {
+					if (!buf.compare(it->get_PID())) {
+						*it = P;
+						cout << "Update Complete" << endl;
+						break;
+					}
+				}
+			}
+			break;
+		case 4:
+			action_flag = true;
+			cout << endl << "Input Purchase ID : ";
+			cin >> buf;
+			cin.get();
+			if (!search_PID(buf)) {
+				cout << "There's no such Purchase ID" << endl;
+			}
+			else {
+				idx = search_purchase(buf);
+				string MID = Purchases.at(idx.at(0)).get_MID();
+				if (key.compare(MID)) {
+					cout << "It's not your purchase" << endl;
+					break;
+				}
+				delete_purchase(buf);
+			}
+			break;
+		case 5:return;
+		default:break;
+		}
+		cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+		cin.get();
+		clear_console();
+	}
 }
 
 void general_menu(Member & m) {
-
+	bool exit_flag = false;
+	bool action_flag = false;
+	while (!exit_flag) {
+		string buf;
+		int selection;
+		clear_console();
+		general_system();
+		cout << endl << "Input : ";
+		cin >> buf;
+		cin.get();
+		if (buf.size() == 1) selection = buf.at(0) - '0';
+		else selection = -1;
+		// 1 : Member Information, 2 : Search Lecture, 3 : Purchase Manipulation
+		switch (selection) {
+		case 1:
+			action_flag = true; if(!member_information(m)) exit_flag = true; break;
+		case 2:
+			action_flag = true; search_lecture(); break;
+		case 3:
+			action_flag = true; purchase_manipulation(m.get_ID()); break;
+		case 4:
+			exit_flag = true; break;
+		default:
+			cout << endl << "Please Input Correctly" << endl; break;
+		}
+		if (!action_flag) {
+			action_flag = true;
+			cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+			cin.get();
+			clear_console();
+		}
+	}
+#ifndef DEBUG
+	delete_memories();
+#endif
 }
 
-void login_window() {
+bool login_window() {
 	string ID, PW;
 	cout << "******************************" << endl;
 	cout << "* Login Window               *" << endl;
 	cout << "******************************" << endl;
 	cout << "ID : ";
 	cin >> ID;
+	cin.get();
 	cout << "PW : ";
 	cin >> PW;
+	cin.get();
 	// if admin
-	if (!ID.compare("admin)") && !PW.compare("adminpass")) {
+	make_memories();
+	if (!ID.compare("admin") && !PW.compare("adminpass")) {
+		delete_memories();
 		admin_menu();
+		return false;
 	}
 	else if (search_member(ID)) {
-		general_menu(Members.find(ID)->second);
+		Member m = Members.find(ID)->second;
+		if (!PW.compare(m.get_PW())) {
+			general_menu(m);
+		}
+		else {
+			cout << "Login Failed" << endl;
+			cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+			cin.get();
+			delete_memories();
+			clear_console();
+			return false;
+		}
 	}
 	else {
 		cout << "Login Failed" << endl;
+		cout << endl << "If you want to CONTINUE, press Enter..." << endl;
+		cin.get();
+		delete_memories();
+		clear_console();
+		return false;
 	}
+	return false;
 }
 
 void make_memories() {
@@ -148,15 +398,15 @@ int record_type(string action) {
 }
 
 void purchase_menu() {
-	cout << "******************************" << endl;
-	cout << "* PurchaseLectureSystem      *" << endl;
-	cout << "******************************" << endl;
-	cout << "* 1. Search                  *" << endl;
-	cout << "* 2. Insert                  *" << endl;
-	cout << "* 3. Delete                  *" << endl;
-	cout << "* 4. Update                  *" << endl;
-	cout << "* 5. Exit                    *" << endl;
-	cout << "******************************" << endl;
+	cout << "**************************************" << endl;
+	cout << "* PurchaseLectureSystem - Admin      *" << endl;
+	cout << "**************************************" << endl;
+	cout << "* 1. Search                          *" << endl;
+	cout << "* 2. Insert                          *" << endl;
+	cout << "* 3. Delete                          *" << endl;
+	cout << "* 4. Update                          *" << endl;
+	cout << "* 5. Exit                            *" << endl;
+	cout << "**************************************" << endl;
 }
 
 void LecturePurchaseSystem() {
@@ -166,7 +416,6 @@ void LecturePurchaseSystem() {
 		string buf;
 		int selection;
 		clear_console();
-		//login_window();											// implement admin menu, and general menu in loginwindow
 		purchase_menu();
 		cout << endl << "Input : ";
 		cin >> buf;
@@ -319,6 +568,60 @@ void record_insert() {
 	delete_memories();
 }
 
+void delete_member(string search_key) {
+	vector<int> idx;
+	int n;
+	if (search_member(search_key)) {
+		idx = search_purchase(search_key);
+		n = 0;
+		for (auto it = idx.begin(); it != idx.end(); it++) {
+			purchase_mod = true;
+			Purchases.erase(Purchases.begin() + *it - n);
+			n++;
+		}
+		Members.erase(search_key);
+		member_mod = true;
+		cout << endl << "Delete Member Record and " << n << " Purchase Record(s) Successfully" << endl;
+	}
+	else
+		cout << endl << "There's no such Member" << endl;
+}
+
+void delete_lecture(string search_key) {
+	vector<int> idx;
+	int n;
+	if (search_lecture(search_key)) {
+		idx = search_purchase(search_key);
+		n = 0;
+		for (auto it = idx.begin(); it != idx.end(); it++) {
+			purchase_mod = true;
+			Purchases.erase(Purchases.begin() + *it - n);
+			n++;
+		}
+		Lectures.erase(search_key);
+		lecture_mod = true;
+		cout << endl << "Delete Lecture Record and " << n << " Purchase Record(s) Successfully" << endl;
+	}
+	else
+		cout << endl << "There's no such Lecture" << endl;
+}
+
+void delete_purchase(string search_key) {
+	vector<int> idx;
+	int n;
+	idx = search_purchase(search_key);
+	if (search_PID(search_key)) {
+		for (auto it = Purchases.begin(); it != Purchases.end(); it++)
+			if (!search_key.compare(it->get_PID())) {
+				Purchases.erase(it); break;
+			}
+		purchase_mod = true;
+		cout << endl << "Delete 1 Purchase Record Successfully" << endl;
+	}
+	else
+		cout << endl << "There's no Such Purchase" << endl;
+}
+
 void record_delete() {
 	bool exit_flag = false;
 	bool type_flag = false;
@@ -335,55 +638,19 @@ void record_delete() {
 			cout << endl << " Input Member ID : ";
 			cin >> search_key;
 			cin.get();
-			if (search_member(search_key)) {
-				idx = search_purchase(search_key);
-				n = 0;
-				for (auto it = idx.begin(); it != idx.end(); it++) {
-					purchase_mod = true;
-					Purchases.erase(Purchases.begin() + *it - n);
-					n++;
-				}
-				Members.erase(search_key);
-				member_mod = true;
-				cout << endl << "Delete Member Record and " << n << " Purchase Record(s) Successfully" << endl;
-			}
-			else
-				cout << endl << "There's no such Member" << endl;
+			delete_member(search_key);
 			break;
 		case 2:
 			cout << endl << " Input Lecture ID : ";
 			cin >> search_key;
 			cin.get();
-			if (search_lecture(search_key)) {
-				idx = search_purchase(search_key);
-				n = 0;
-				for (auto it = idx.begin(); it != idx.end(); it++) {
-					purchase_mod = true;
-					Purchases.erase(Purchases.begin() + *it - n);
-					n++;
-				}
-				Lectures.erase(search_key);
-				lecture_mod = true;
-				cout << endl << "Delete Lecture Record and " << n << " Purchase Record(s) Successfully" << endl;
-			}
-			else
-				cout << endl << "There's no such Lecture" << endl;
+			delete_lecture(search_key);
 			break;
 		case 3:
 			cout << endl << " Input Purchase ID : ";
 			cin >> search_key;
 			cin.get();
-			idx = search_purchase(search_key);
-			if(search_PID(search_key)) {
-				for (auto it = Purchases.begin(); it != Purchases.end(); it++)
-					if (!search_key.compare(it->get_PID())) {
-						Purchases.erase(it); break;
-					}
-				purchase_mod = true;
-				cout << endl << "Delete 1 Purchase Record Successfully" << endl;
-			}
-			else
-				cout << endl << "There's no Such Purchase" << endl;
+			delete_purchase(search_key);
 			break;
 		case 4:
 			exit_flag = true; break;
@@ -527,7 +794,7 @@ bool update_member(string key) {
 	M.update_Mileage(string(ptr));
 	
 	Members[key] = M;
-
+	member_mod = true;
 	return true;
 }
 
@@ -583,10 +850,10 @@ bool update_purchase(string key) {
 	P.update_purchaseID(key);
 
 	ptr = strtok_s(buffer, "|", &context);
-	if (!ptr) { cout << "LectureID Error!" << endl; return false; }
+	if (!ptr && search_lecture(string(ptr))) { cout << "LectureID Error!" << endl; return false; }
 	P.update_lectureID(string(ptr));
 	ptr = strtok_s(NULL, "|", &context);
-	if (!ptr) { cout << "MemberID Error!" << endl; return false; }
+	if (!ptr && search_member(string(ptr))) { cout << "MemberID Error!" << endl; return false; }
 	P.update_memberID(string(ptr));
 	ptr = strtok_s(NULL, "|", &context);
 	if (!ptr) { cout << "Mileage Error!" << endl; return false; }

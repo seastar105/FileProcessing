@@ -39,8 +39,10 @@ public:
 	void update_Name(const string new_name) { Name = new_name; }
 	void update_PhoneNumber(const string new_phonenumber) { PhoneNumber = new_phonenumber; }
 	void update_Address(const string new_address) { Address = new_address; }
-	void update_Mileage(const string new_mileage) { this->Mileage = new_mileage; }
+	void update_Mileage(const string new_mileage) { Mileage = new_mileage; }
+	void update_Level(const int new_level) { level = new_level; }
 	string get_ID();
+	string get_PW();
 
 	char *Key();
 };

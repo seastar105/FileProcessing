@@ -1,6 +1,6 @@
 #ifndef RECORD_MANIPULATION_H
 #define RECORD_MANIPULATION_H
-
+#define DEBUG
 #include<iostream>
 #include<map>
 #include<vector>
@@ -24,6 +24,10 @@ void record_update();
 void make_memories();
 void delete_memories();
 
+void delete_member(string);
+void delete_lecture(string);
+void delete_purchase(string);
+
 bool search_member(string);
 bool search_lecture(string);
 vector<int> search_purchase(string);
@@ -34,7 +38,12 @@ bool update_purchase(string);
 
 bool search_PID(string);
 
-void login_window();
+bool login_window();
 void admin_menu();
 void general_menu(Member &);
+void general_system();
+
+bool member_information(Member &);
+void search_lecture();
+void purchase_manipulation(string key);
 #endif

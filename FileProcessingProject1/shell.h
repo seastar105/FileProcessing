@@ -11,4 +11,5 @@
 void shell();					// the first function when program start
 void purchase_menu();
 void menu();					// shell()'s menu
+
 #endif

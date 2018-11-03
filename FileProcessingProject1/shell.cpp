@@ -5,9 +5,10 @@ using namespace std;
 void shell() {
 	bool exit_flag = false;
 	while (!exit_flag) {
+		bool login_flag = true;
 		int selection;
 		string buf;
-
+		clear_console();
 		menu();
 		cout << endl << "Input : ";
 		cin >> buf;
@@ -21,15 +22,17 @@ void shell() {
 		case 4:MemberTest(); break;
 		case 5:LectureTest(); break;
 		case 6:PurchaseTest(); break;
-		case 7:LecturePurchaseSystem(); break;
+		case 7:login_flag = login_window(); break;
 		case 8:exit_flag = true; return;
 		default:
 			cout << endl << "Please input correctly" << endl;  break;
 		}
 		cout << endl;
-		cout << "If you want to CONTINUE, press Enter..." << endl;
-		cin.get();
-		clear_console();
+		if (login_flag) {
+			cout << "If you want to CONTINUE, press Enter..." << endl;
+			cin.get();
+			clear_console();
+		}
 	}
 }
 

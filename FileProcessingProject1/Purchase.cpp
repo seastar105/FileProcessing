@@ -108,3 +108,8 @@ string Purchase::get_LID() {
 string Purchase::get_MID() {
 	return memberID;
 }
+
+char * Purchase::Key() {
+	key.assign(purchaseID);
+	return const_cast<char*>(key.c_str());
+}

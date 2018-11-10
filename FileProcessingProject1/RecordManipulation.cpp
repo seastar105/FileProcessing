@@ -7,7 +7,7 @@ vector<Purchase> Purchases;
 bool member_mod = false;
 bool lecture_mod = false;
 bool purchase_mod = false;
-
+bool index_exist = false;
 using namespace std;
 
 void admin_menu() {
@@ -298,9 +298,14 @@ void make_memories() {
 	RecordFile<Lecture> LectureFile(buf2);
 	RecordFile<Purchase> PurchaseFile(buf3);
 
-	Member M;
+	int prev=0;
+	TextIndex MemberIndex(1000);						// fixed number of records
 	MemberFile.Open(f1, ios::in);
-	while (MemberFile.Read(M) != -1) {
+	while (1) {
+		Member M;
+		int recaddr = MemberFile.Read(M);
+		if (recaddr == -1) break;
+		MemberIndex.Insert(M.Key(), recaddr);
 		Members[M.get_ID()] = M;
 	}
 	MemberFile.Close();

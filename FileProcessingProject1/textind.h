@@ -8,6 +8,8 @@ using namespace std;
 
 class TextIndex
 {
+private:
+	int cur;
 public:
 	TextIndex(int maxKeys = 100, int unique = 1);
 	~TextIndex();
@@ -15,6 +17,8 @@ public:
 	int Remove(const char * key);
 	int Search(const char * key) const;
 	void Print(ostream &) const;
+	int FirstRecAddr();
+	int NextRecAddr();
 protected:
 	int MaxKeys;
 	int NumKeys;

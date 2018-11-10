@@ -135,3 +135,8 @@ string Member::get_ID() {
 string Member::get_PW() {
 	return Password;
 }
+
+char * Member::Key() {
+	key.assign(ID);
+	return const_cast<char*>(key.c_str());
+}

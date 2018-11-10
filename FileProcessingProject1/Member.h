@@ -19,6 +19,7 @@ class Member {
 
 	string key;
 	int level;
+	//size_t Length;
 public:
 	Member();
 
@@ -44,6 +45,8 @@ public:
 	string get_ID();
 	string get_PW();
 
+	//void update_Length(const size_t length) { Length = length; }
+	//size_t get_Length() { return Length; }
 	char *Key();
 };
 

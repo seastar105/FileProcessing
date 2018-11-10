@@ -6,6 +6,22 @@
 
 using namespace std;
 
+int TextIndex::FirstRecAddr() {
+	if (NumKeys == 0)
+		return -2;
+	else {
+		cur = 0;
+		return RecAddrs[cur];
+	}
+}
+
+int TextIndex::NextRecAddr() {
+	if (++cur >= NumKeys) {			// end of index
+		cur = 0;
+		return RecAddrs[cur];
+	}
+	return RecAddrs[cur];
+}
 
 TextIndex::TextIndex(int maxKeys, int unique)
 	: NumKeys(0), Keys(0), RecAddrs(0)
@@ -65,12 +81,33 @@ void TextIndex::Print(ostream & stream) const
 		<< " RecAddr " << RecAddrs[i] << endl;
 }
 
+
+
 int TextIndex::Find(const char * key) const
 {
-	for (int i = 0; i < NumKeys; i++)
+	int low, mid, high;
+	int flag = 0;
+	low = 0;
+	high = NumKeys - 1;
+	while (low <= high) {
+		int cmp;
+		mid = (low + high) / 2;
+		cmp = strcmp(key, Keys[mid]);
+		if (cmp == 0) {
+			flag = 1;
+			break;
+		}
+		else if (cmp > 0)
+			low = mid + 1;
+		else
+			high = mid - 1;
+	}
+	/*for (int i = 0; i < NumKeys; i++)
 		if (strcmp(Keys[i], key) == 0) return i;// key found
-//		else if (strcmp(Keys[i], key)>0) return -1;// not found
-	return -1;// not found
+//		else if (strcmp(Keys[i], key)>0) return -1;// not found*/
+	if(!flag)
+		return -1;// not found
+	return mid;
 }
 
 int TextIndex::Init(int maxKeys, int unique)

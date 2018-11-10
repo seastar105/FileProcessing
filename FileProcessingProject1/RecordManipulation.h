@@ -1,6 +1,6 @@
 #ifndef RECORD_MANIPULATION_H
 #define RECORD_MANIPULATION_H
-#define DEBUG
+//#define DEBUG
 #include<iostream>
 #include<map>
 #include<vector>
@@ -10,6 +10,10 @@
 #include"Purchase.h"
 #include"Lecture.h"
 #include"Member.h"
+
+#include"tindbuff.h"
+#include"textind.h"
+#include"indfile.h"
 
 void clear_console();			// use system command to clear console (works only with windows)
 void LecturePurchaseSystem();

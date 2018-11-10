@@ -18,6 +18,7 @@ class Purchase {
 	string Mileage;
 
 	string key;
+	//size_t Length;
 public:
 	Purchase();
 
@@ -41,6 +42,8 @@ public:
 	string get_LID();
 
 	char *Key();
+	//void update_Length(const size_t length) { Length = length; }
+	//size_t get_Length() { return Length; }
 };
 
 #endif

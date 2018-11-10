@@ -160,3 +160,8 @@ bool Lecture::Pack(IOBuffer &Buffer) const {
 string Lecture::get_ID() {
 	return ID;
 }
+
+char * Lecture::Key() {
+	key.assign(ID);
+	return const_cast<char*>(key.c_str());
+}

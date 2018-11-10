@@ -177,4 +177,3 @@ TextIndexedFile<RecType>::~TextIndexedFile()
 {
 	Close();
 }
-

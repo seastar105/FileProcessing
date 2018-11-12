@@ -3,11 +3,14 @@
 map<string, Member> Members;
 map<string, Lecture> Lectures;
 vector<Purchase> Purchases;
+TextIndexedFile<Member> Member_Index;
+TextIndexedFile<Lecture> Lecture_Index;
 
 bool member_mod = false;
 bool lecture_mod = false;
 bool purchase_mod = false;
-bool index_exist = false;
+bool memidx_exist = false;
+bool lecidx_exist = false;
 using namespace std;
 
 void admin_menu() {

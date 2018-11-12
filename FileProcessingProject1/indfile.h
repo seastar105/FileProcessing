@@ -12,6 +12,7 @@ template <class RecType>
 class TextIndexedFile
 {
 public:
+	int Delete(char *key);		// Delete Record in Index by primary key
 	int Read(RecType & record); // read next record
 	int Read(char * key, RecType & record); // read by key
 	int Append(RecType & record);
@@ -20,7 +21,7 @@ public:
 	int Open(char * name, int mode = ios::in | ios::out);
 	int Close();
 	TextIndexedFile(IOBuffer & buffer,
-		int keySize, int maxKeys = 100);
+		int keySize, int maxKeys = 1000);
 	~TextIndexedFile(); // close and delete
 protected:
 	TextIndex Index;
@@ -106,6 +107,27 @@ int TextIndexedFile<RecType>::Create(char * fileName, int mode)
 	result = IndexFile.Create(indexFileName, ios::out | ios::in);
 	if (!result)
 	{
+		DataFile.Close(); // close the data file
+		FileName = 0; // remove connection
+		return 0;
+	}
+	// TODO : Make Index
+	while (1) {
+		RecType R;
+		int recaddr = DataFile.Read(R);
+		if (recaddr == -1) {
+			cout << "Data Read Error!" << endl;
+		}
+		Index.Insert(R.Key(), recaddr);			// add Records in TextIndex
+	}
+	// Write Index to IndexFile
+	IndexBuffer.Pack(Index);
+	result = IndexFile.Write();
+	//	cout <<"result of index write: "<<result<<endl;
+	IndexFile.Close();
+	// Write Cleared and Open again
+	result = IndexFile.Open(indexFileName, ios::in | ios::out);
+	if (!result) {
 		DataFile.Close(); // close the data file
 		FileName = 0; // remove connection
 		return 0;

@@ -1,17 +1,74 @@
 #include"RecordManipulation.h"
-
-map<string, Member> Members;
-map<string, Lecture> Lectures;
+DelimFieldBuffer Membuf('|');
+DelimFieldBuffer Lecbuf('|');
+TextIndexedFile<Member> Member_Index(Membuf, 20, 1200);
+TextIndexedFile<Lecture> Lecture_Index(Lecbuf, 20, 1200);
+vector<Member> &Members = Member_Index.Records;
+vector<Lecture> &Lectures = Lecture_Index.Records;
 vector<Purchase> Purchases;
-TextIndexedFile<Member> Member_Index;
-TextIndexedFile<Lecture> Lecture_Index;
 
+// 필요한 가정 maxKeys가 1000이라고 가정한다.
 bool member_mod = false;
 bool lecture_mod = false;
 bool purchase_mod = false;
 bool memidx_exist = false;
 bool lecidx_exist = false;
 using namespace std;
+
+void openIndex() {			// If There's no ind file, create then open.
+	// fileOfMember
+	string filename = "fileOfMember";
+	int result;
+	result = Member_Index.Open(const_cast<char*>(filename.c_str()));
+	if (result == 0) {			// 
+		DelimFieldBuffer buf('|', 256);
+		RecordFile<Member> MemberFile(buf);
+		TextIndex MemberIndex(1200);
+		MemberFile.Open(const_cast<char*>("fileOfMember.dat"), ios::in);
+		while (1) {
+			Member m;
+			int recaddr = MemberFile.Read(m);
+			if (recaddr == -1) break;
+			MemberIndex.Insert(m.Key(), recaddr);
+		}
+		MemberFile.Close();
+		TextIndexBuffer idxbuf(20, 1200);
+		BufferFile MemIdxFile(idxbuf);
+		MemIdxFile.Create(const_cast<char*>("fileOfMember.ind"), ios::out | ios::trunc);
+		MemIdxFile.Rewind();
+		idxbuf.Pack(MemberIndex);
+		MemIdxFile.Write();
+		MemIdxFile.Close();
+		memidx_exist = true;
+		Member_Index.Open(const_cast<char*>(filename.c_str()));
+	}
+	Members = Member_Index.Records;
+	filename = "fileOfLecture";
+	result = Lecture_Index.Open(const_cast<char*>(filename.c_str()));
+	if (result == 0) {
+		DelimFieldBuffer buf('|', 256);
+		RecordFile<Lecture> LectureFile(buf);
+		TextIndex LectureIndex(1200);
+		LectureFile.Open(const_cast<char*>("fileOfLecture.dat"), ios::in);
+		while (1) {
+			Lecture m;
+			int recaddr = LectureFile.Read(m);
+			if (recaddr == -1) break;
+			LectureIndex.Insert(m.Key(), recaddr);
+		}
+		LectureFile.Close();
+		TextIndexBuffer idxbuf(20, 1200);
+		BufferFile LecIdxFile(idxbuf);
+		LecIdxFile.Create(const_cast<char*>("fileOfLecture.ind"), ios::out | ios::trunc);
+		LecIdxFile.Rewind();
+		idxbuf.Pack(LectureIndex);
+		LecIdxFile.Write();
+		LecIdxFile.Close();
+		lecidx_exist = true;
+		Lecture_Index.Open(const_cast<char*>(filename.c_str()));
+	}
+	Lectures = Lecture_Index.Records;
+}
 
 void admin_menu() {
 	LecturePurchaseSystem();
@@ -67,7 +124,9 @@ void search_lecture() {
 	cin >> search_key;
 	cin.get();
 	if (search_lecture(search_key)) {
-		cout << endl << Lectures.find(search_key)->second;
+		cout << endl << *(find_if(Lectures.begin(), Lectures.end(), [search_key](Lecture &m) {
+			return !search_key.compare(m.Key());
+		}));
 	}
 	else
 		cout << endl << "There's no such Lecture" << endl;
@@ -140,7 +199,7 @@ void purchase_manipulation(string key) {
 				ptr = strtok_s(NULL, "|", &context);
 				if (!ptr) { cout << "Mileage Error!" << endl; break; }
 				P.update_Mileage(string(ptr));
-				purchase_mod == true;
+				purchase_mod = true;
 				Purchases.push_back(P);
 			}
 			break;
@@ -261,6 +320,7 @@ bool login_window() {
 	cin >> PW;
 	cin.get();
 	// if admin
+
 	make_memories();
 	if (!ID.compare("admin") && !PW.compare("adminpass")) {
 		delete_memories();
@@ -268,7 +328,9 @@ bool login_window() {
 		return false;
 	}
 	else if (search_member(ID)) {
-		Member m = Members.find(ID)->second;
+		Member m = *(find_if(Members.begin(), Members.end(), [ID](Member &m) {
+			return !ID.compare(m.Key()); 
+		}));
 		if (!PW.compare(m.get_PW())) {
 			general_menu(m);
 		}
@@ -301,24 +363,10 @@ void make_memories() {
 	RecordFile<Lecture> LectureFile(buf2);
 	RecordFile<Purchase> PurchaseFile(buf3);
 
-	int prev=0;
-	TextIndex MemberIndex(1000);						// fixed number of records
-	MemberFile.Open(f1, ios::in);
-	while (1) {
-		Member M;
-		int recaddr = MemberFile.Read(M);
-		if (recaddr == -1) break;
-		MemberIndex.Insert(M.Key(), recaddr);
-		Members[M.get_ID()] = M;
-	}
-	MemberFile.Close();
+	openIndex();
+	Members = Member_Index.Records;
+	Lectures = Lecture_Index.Records;
 
-	Lecture L;
-	LectureFile.Open(f2, ios::in);
-	while (LectureFile.Read(L) != -1) {
-		Lectures[L.get_ID()] = L;
-	}
-	LectureFile.Close();
 
 	Purchase P;
 	PurchaseFile.Open(f3, ios::in);
@@ -330,26 +378,10 @@ void make_memories() {
 
 void delete_memories() {
 	if (member_mod) {
-		DelimFieldBuffer buffer('|');
-		RecordFile<Member> MemberFile(buffer);
-		char filename[] = "fileOfMember.dat";
-		MemberFile.Create(filename, ios::out | ios::trunc);
-		for (auto it = Members.begin(); it != Members.end(); it++) {
-			if (MemberFile.Write(it->second) == -1)
-				cout << "Write error!" << endl;
-		}
-		MemberFile.Close();
+		Member_Index.Rewrite(const_cast<char*>("fileOfMember.dat"));
 	}
 	if (lecture_mod) {
-		DelimFieldBuffer buffer('|');
-		RecordFile<Lecture> LectureFile(buffer);
-		char filename[] = "fileOfLecture.dat";
-		LectureFile.Create(filename, ios::out | ios::trunc);
-		for (auto it = Lectures.begin(); it != Lectures.end(); it++) {
-			if (LectureFile.Write(it->second) == -1)
-				cout << "Write error!" << endl;
-		}
-		LectureFile.Close();
+		Lecture_Index.Rewrite(const_cast<char*>("fileOfLecture.dat"));
 	}
 	if (purchase_mod) {
 		DelimFieldBuffer buffer('|');
@@ -362,6 +394,8 @@ void delete_memories() {
 		}
 		PurchaseFile.Close();
 	}
+	Member_Index.Close();
+	Lecture_Index.Close();
 	Members.clear();
 	Lectures.clear();
 	Purchases.clear();
@@ -469,7 +503,8 @@ void record_search() {
 			cin >> search_key;
 			cin.get();
 			if (search_member(search_key)) {
-				cout << endl << Members.find(search_key)->second;
+				auto it = find_if(Members.begin(), Members.end(), [search_key](Member &m) {return !search_key.compare(m.Key()); });
+				cout << endl << *it;
 			}
 			else
 				cout << endl << "There's no such Member" << endl;
@@ -479,7 +514,8 @@ void record_search() {
 			cin >> search_key;
 			cin.get();
 			if (search_lecture(search_key)) {
-				cout << endl << Lectures.find(search_key)->second;
+				auto it = find_if(Lectures.begin(), Lectures.end(), [search_key](Lecture &m) {return !search_key.compare(m.Key()); });
+				cout << endl << *it;
 			}
 			else
 				cout << endl << "There's no such Lecture" << endl;
@@ -530,7 +566,7 @@ void record_insert() {
 				cout << endl << "There's already duplicate Member" << endl;
 			}
 			else {
-				if (update_member(search_key)) {
+				if (insert_member(search_key)) {
 					member_mod = true;
 					cout << endl << "Insert Member Record Success" << endl;
 				}
@@ -544,7 +580,7 @@ void record_insert() {
 				cout << endl << "There's already duplicate Lecture" << endl;
 			}
 			else {
-				if (update_lecture(search_key)) {
+				if (insert_lecture(search_key)) {
 					lecture_mod = true;
 					cout << endl << "Insert Lecture Record Success" << endl;
 				}
@@ -587,7 +623,7 @@ void delete_member(string search_key) {
 			Purchases.erase(Purchases.begin() + *it - n);
 			n++;
 		}
-		Members.erase(search_key);
+		Member_Index.Delete(const_cast<char*>(search_key.c_str()));
 		member_mod = true;
 		cout << endl << "Delete Member Record and " << n << " Purchase Record(s) Successfully" << endl;
 	}
@@ -606,7 +642,7 @@ void delete_lecture(string search_key) {
 			Purchases.erase(Purchases.begin() + *it - n);
 			n++;
 		}
-		Lectures.erase(search_key);
+		Lecture_Index.Delete(const_cast<char*>(search_key.c_str()));
 		lecture_mod = true;
 		cout << endl << "Delete Lecture Record and " << n << " Purchase Record(s) Successfully" << endl;
 	}
@@ -739,14 +775,16 @@ void record_update() {
 }
 
 bool search_member(string key) {
-	if (Members.find(key) != Members.end())
+	auto it = find_if(Members.begin(), Members.end(), [key](Member &m) {return !key.compare(m.Key()); });
+	if (it != Members.end())
 		return true;
 	else
 		return false;
 }
 
 bool search_lecture(string key) {
-	if (Lectures.find(key) != Lectures.end())
+	auto it = find_if(Lectures.begin(), Lectures.end(), [key](Lecture &m) {return !key.compare(m.Key()); });
+	if (it != Lectures.end())
 		return true;
 	else
 		return false;
@@ -771,6 +809,78 @@ bool search_PID(string key) {
 		if (!key.compare(it->get_PID()))
 			return true;
 	return false;
+}
+
+bool insert_lecture(string key) {
+	Lecture L;
+	char buffer[STDMAXBUF];
+	char *ptr, *context = NULL;
+	cout << endl << "Please Input Information follow format" << endl;
+	cout << endl << "Subject|Level|Price|Extension|DueDate|NameOfTeacher|Textbook" << endl;
+	cout << endl << "EX) FileProcessing|A|300,000|B|90|ParkSuk|FileStructure" << endl << endl;
+
+	cin >> buffer;
+	cin.get();
+	L.update_ID(key);
+
+	ptr = strtok_s(buffer, "|", &context);
+	if (!ptr) { cout << "Subject Error!" << endl; return false; }
+	L.update_Subject(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Level Error!" << endl; return false; }
+	L.update_level(ptr[0]);
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Price Error!" << endl; return false; }
+	L.update_Price(commaDecimalToInt(string(ptr)));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Extension Error!" << endl; return false; }
+	L.update_Extension(ptr[0]);
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "DueDate Error!" << endl; return false; }
+	L.update_dueDate(commaDecimalToInt(string(ptr)));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "NameOfTecher Error!" << endl; return false; }
+	L.update_nameOfTeacher(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "TextBook Error!" << endl; return false; }
+	L.update_Textbook(string(ptr));
+
+	Lecture_Index.Append(L);
+	lecture_mod = true;
+	return true;
+}
+
+bool insert_member(string key) {
+	Member M;
+	char buffer[STDMAXBUF];
+	char *ptr, *context = NULL;
+	cout << endl << "Please Input Information follow format" << endl;
+	cout << endl << "Password|Name|PheonNumber|Address|Mileage" << endl;
+	cout << endl << "EX) 1234|Gildong|010-1234-5678|Seoul|0000043000" << endl << endl;
+
+	cin >> buffer;
+	cin.get();
+	M.update_ID(key);
+
+	ptr = strtok_s(buffer, "|", &context);
+	if (!ptr) { cout << "Password Error!" << endl; return false; }
+	M.update_Password(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Name Error!" << endl; return false; }
+	M.update_Name(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "PhoneNumber Error!" << endl; return false; }
+	M.update_PhoneNumber(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Address Error!" << endl; return false; }
+	M.update_Address(string(ptr));
+	ptr = strtok_s(NULL, "|", &context);
+	if (!ptr) { cout << "Mileage Error!" << endl; return false; }
+	M.update_Mileage(string(ptr));
+
+	Member_Index.Append(M);
+	member_mod = true;
+	return true;
 }
 
 bool update_member(string key) {
@@ -801,7 +911,7 @@ bool update_member(string key) {
 	if (!ptr) { cout << "Mileage Error!" << endl; return false; }
 	M.update_Mileage(string(ptr));
 	
-	Members[key] = M;
+	Member_Index.Update(const_cast<char*>(key.c_str()), M);
 	member_mod = true;
 	return true;
 }
@@ -840,7 +950,8 @@ bool update_lecture(string key) {
 	if (!ptr) { cout << "TextBook Error!" << endl; return false; }
 	L.update_Textbook(string(ptr));
 
-	Lectures[key] = L;
+	Lecture_Index.Update(const_cast<char*>(key.c_str()), L);
+	lecture_mod = true;
 
 	return true;
 }

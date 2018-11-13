@@ -5,6 +5,7 @@
 #include<map>
 #include<vector>
 #include<string>
+#include<algorithm>
 #include"recfile.h"
 #include"delim.h"
 #include"Purchase.h"
@@ -34,7 +35,7 @@ void delete_purchase(string);
 
 bool search_member(string);
 bool search_lecture(string);
-vector<int> search_purchase(string);
+std::vector<int> search_purchase(string);
 
 bool update_member(string);
 bool update_lecture(string);
@@ -50,4 +51,8 @@ void general_system();
 bool member_information(Member &);
 void search_lecture();
 void purchase_manipulation(string key);
+
+void openIndex();			// If there're no indexFiles, createIndexFile First, and Open 
+bool insert_member(string key);
+bool insert_lecture(string key);
 #endif

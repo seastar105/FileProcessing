@@ -22,7 +22,6 @@ class Lecture {
 	string Textbook;
 
 	string key;
-	//size_t Length;
 public:
 	Lecture();
 
@@ -47,8 +46,7 @@ public:
 
 	string format_price();
 	string get_ID();
-	//void update_Length(const size_t length) { Length = length; }
-	//size_t get_Length() { return Length; }
+	size_t get_length() { return (ID.size() + Subject.size() + nameOfTeacher.size() + Textbook.size() + 11 + 10) ; }
 	char *Key();
 };
 

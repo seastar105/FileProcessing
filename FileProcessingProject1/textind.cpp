@@ -6,9 +6,19 @@
 
 using namespace std;
 
+int TextIndex::Update(const char* key, int dst) {		// need to modify all the recaddrs if needed
+	int recaddr = RecAddrs[Find(key)];
+	for (int i = 0; i < NumKeys; i++) {
+		if (RecAddrs[i] > recaddr) {
+			RecAddrs[i] += dst;
+		}
+	}
+	return 1;
+}
+
 int TextIndex::FirstRecAddr() {
 	if (NumKeys == 0)
-		return -2;
+		return -1;
 	else {
 		cur = 0;
 		return RecAddrs[cur];
@@ -17,21 +27,21 @@ int TextIndex::FirstRecAddr() {
 
 int TextIndex::NextRecAddr() {
 	if (++cur >= NumKeys) {			// end of index
-		cur = 0;
-		return RecAddrs[cur];
+		//cur = -1;
+		return -1;
 	}
 	return RecAddrs[cur];
 }
 
 TextIndex::TextIndex(int maxKeys, int unique)
-	: NumKeys(0), Keys(0), RecAddrs(0)
+	: NumKeys(0), Keys(0), RecAddrs(0), VecAddrs(0),Lengths(0)
 {
 	Init(maxKeys, unique);
 }
 
 TextIndex :: ~TextIndex()
 {
-	delete Keys; delete RecAddrs;
+	delete Keys; delete RecAddrs; delete VecAddrs; delete Lengths;
 }
 
 int TextIndex::Insert(const char * key, int recAddr)
@@ -45,9 +55,11 @@ int TextIndex::Insert(const char * key, int recAddr)
 		if (strcmp(key, Keys[i]) > 0) break; // insert into location i+1
 		Keys[i + 1] = Keys[i];
 		RecAddrs[i + 1] = RecAddrs[i];
+		VecAddrs[i + 1] = VecAddrs[i];
 	}
 	Keys[i + 1] = _strdup(key);
 	RecAddrs[i + 1] = recAddr;
+	VecAddrs[i + 1] = NumKeys;
 	NumKeys++;
 	return 1;
 }
@@ -63,6 +75,37 @@ int TextIndex::Remove(const char * key)
 	}
 	NumKeys--;
 	return 1;
+}
+
+int TextIndex::Remove(const char * key, size_t len)
+{
+	int index = Find(key);
+	if (index < 0) return 0; // key not in index
+	int tmp = VecAddrs[index];
+	int pin = RecAddrs[index];
+	for (int i = index; i < NumKeys; i++)
+	{
+		Keys[i] = Keys[i + 1];
+		RecAddrs[i] = RecAddrs[i + 1];
+	}
+	for (int i = 0; i < NumKeys - 1; i++) {
+		if (i == index) {
+			i++; continue;
+		}
+		if (VecAddrs[i] > tmp)
+			VecAddrs[i]--;
+		if (RecAddrs[i] > pin) {
+			RecAddrs[i] -= len;
+		}
+	}
+	NumKeys--;
+	return 1;
+}
+
+int TextIndex::VecIndex(const char *key) const {
+	int index = Find(key);
+	if (index < 0) return index;
+	return VecAddrs[index];
 }
 
 int TextIndex::Search(const char * key) const
@@ -121,6 +164,8 @@ int TextIndex::Init(int maxKeys, int unique)
 	MaxKeys = maxKeys;
 	Keys = new char *[maxKeys];
 	RecAddrs = new int[maxKeys];
+	VecAddrs = new int[maxKeys];
+	Lengths = new int[maxKeys];
 	return 1;
 }
 

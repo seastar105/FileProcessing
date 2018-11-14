@@ -89,7 +89,7 @@ int TextIndexedFile<RecType>::Update
 {
 	auto it = std::find_if(Records.begin(), Records.end(), [oldKey](RecType &R) { return !strcmp(R.Key(),oldKey); });
 	int dst;
-	size_t pre_size = (*it).get_length();
+	size_t pre_size = it->get_length();
 	size_t new_size = record.get_length();
 	if (it == Records.end()) return 0;
 	*it = record;

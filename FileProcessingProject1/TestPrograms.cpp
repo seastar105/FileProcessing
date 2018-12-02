@@ -99,6 +99,7 @@ void MemberTest() {
 		cout << m;
 	}
 	MemberFile.Close();
+	remove("fileOfMember.ind");
 }
 
 void LectureTest() {
@@ -138,6 +139,7 @@ void LectureTest() {
 		cout << L;
 	}
 	LectureFile.Close();
+	remove("fileOfLecture.ind");
 }
 
 void PurchaseTest() {

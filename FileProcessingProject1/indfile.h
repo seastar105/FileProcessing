@@ -22,6 +22,7 @@ public:
 	int Update(char * oldKey, RecType & record);
 	int Create(char * name, int mode = ios::in | ios::out);
 	int Open(char * name, int mode = ios::in | ios::out);
+	int CreateIndex(char *name, int mode = ios::in | ios::out);
 	int Close();
 	int Rewrite(char *filename);
 	TextIndexedFile(IOBuffer & buffer,
@@ -36,6 +37,64 @@ protected:
 	int SetFileName(char * fileName,
 		char *& dataFileName, char *& indexFileName);
 };
+
+// Assumption : There's already .dat file
+template<class RecType>
+int TextIndexedFile<RecType>::CreateIndex(char *filename, int mode) {
+	int result;
+	char * dataFileName, *indexFileName;
+	result = SetFileName(fileName, dataFileName, indexFileName);
+	//	cout <<"file names "<<dataFileName<<" "<<indexFileName<<endl;
+	if (result == -1) return 0;
+	result = DataFile.Open(dataFileName, mode);
+	if (!result)
+	{
+		FileName = 0; // remove connection
+		return 0;
+	}
+	while (1) {
+		RecType R;
+		int recaddr = DataFile.Read(R);
+		if (recaddr == -1) break;
+		Index.Insert(R.Key(), recaddr);
+	}
+	DataFile.Rewind();
+	result = IndexFile.Create(indexFileName, ios::out | ios::trunc);
+	if (!result)
+	{
+		DataFile.Close(); // close the data file
+		FileName = 0; // remove connection
+		return 0;
+	}
+	IndexFile.Rewind();
+	IndexBuffer.Pack(Index);
+	IndexFile.Write();
+	IndexFile.Close();
+	IndexFile.Open(indexFileName, ios::out | ios::in);
+	// read index into memory
+	result = IndexFile.Read();
+	if (result != -1)
+	{
+		result = IndexBuffer.Unpack(Index);
+	}
+	if (result != -1) {
+		int i = 0;
+		while (1) {
+			RecType R;
+			int recaddr = DataFile.Read(R);
+			if (recaddr == -1) break;
+			Records.push_back(R);
+			Index.VecAddrs[Index.Find(R.Key())] = i++;
+		}
+		DataFile.Rewind();
+		return 1;
+	}
+	// read or unpack failed!
+	DataFile.Close();
+	IndexFile.Close();
+	FileName = 0;
+	return 0;
+}
 
 template<class RecType>
 int TextIndexedFile<RecType> ::Delete(char * key) {

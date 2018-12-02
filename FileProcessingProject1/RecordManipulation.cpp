@@ -328,7 +328,7 @@ bool login_window() {
 		return false;
 	}
 	else if (search_member(ID)) {
-		Member m = *(find_if(Members.begin(), Members.end(), [ID](Member &m) {
+		Member &m = *(find_if(Members.begin(), Members.end(), [ID](Member &m) {
 			return !ID.compare(m.Key()); 
 		}));
 		if (!PW.compare(m.get_PW())) {

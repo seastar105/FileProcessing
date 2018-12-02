@@ -19,11 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Btnode.h" />
+    <ClInclude Include="btree.h" />
     <ClInclude Include="buffile.h" />
     <ClInclude Include="delim.h" />
     <ClInclude Include="fixfld.h" />
     <ClInclude Include="fixlen.h" />
+    <ClInclude Include="indbuff.h" />
     <ClInclude Include="indfile.h" />
+    <ClInclude Include="indnode.h" />
     <ClInclude Include="iobuffer.h" />
     <ClInclude Include="Lecture.h" />
     <ClInclude Include="Member.h" />
@@ -31,17 +35,22 @@
     <ClInclude Include="shell.h" />
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="recfile.h" />
+    <ClInclude Include="simpind.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="textind.h" />
     <ClInclude Include="tindbuff.h" />
     <ClInclude Include="varlen.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="btnode.cpp" />
+    <ClCompile Include="btree.cpp" />
     <ClCompile Include="buffile.cpp" />
     <ClCompile Include="delim.cpp" />
     <ClCompile Include="fixfld.cpp" />
     <ClCompile Include="fixlen.cpp" />
     <ClCompile Include="gendata.cpp" />
+    <ClCompile Include="indbuff.cpp" />
+    <ClCompile Include="indnode.cpp" />
     <ClCompile Include="iobuffer.cpp" />
     <ClCompile Include="Lecture.cpp" />
     <ClCompile Include="main.cpp" />
@@ -49,6 +58,7 @@
     <ClCompile Include="RecordManipulation.cpp" />
     <ClCompile Include="shell.cpp" />
     <ClCompile Include="Purchase.cpp" />
+    <ClCompile Include="simpind.cpp" />
     <ClCompile Include="TestPrograms.cpp" />
     <ClCompile Include="textind.cpp" />
     <ClCompile Include="tindbuff.cpp" />

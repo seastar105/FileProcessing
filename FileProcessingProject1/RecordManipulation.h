@@ -15,6 +15,8 @@
 #include"tindbuff.h"
 #include"textind.h"
 #include"indfile.h"
+#include"Btnode.h"
+#include"btree.h"
 
 void clear_console();			// use system command to clear console (works only with windows)
 void LecturePurchaseSystem();
@@ -55,4 +57,6 @@ void purchase_manipulation(string key);
 void openIndex();			// If there're no indexFiles, createIndexFile First, and Open 
 bool insert_member(string key);
 bool insert_lecture(string key);
+
+void RewritePurchase();		// Rewrite Purchase .dat and .ind file after update and delete
 #endif

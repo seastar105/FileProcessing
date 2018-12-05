@@ -112,6 +112,7 @@ int BTree<keyType>::Open(char * name, int mode)
 	// load root
 	int rootaddr = BTreeFile.Read(Root);
 	Root.RecAddr = rootaddr;
+	Nodes[0] = &Root;
 	// TODO
 	Height = getHeight(); // find height from BTreeFile!
 	return 1;
@@ -132,6 +133,12 @@ int BTree<keyType>::Create(char * name, int mode)
 template <class keyType>
 int BTree<keyType>::Close()
 {
+	Height = 1;
+	delete Nodes;
+	Nodes = new BTNode *[PoolSize];
+	for (int i = 0; i < PoolSize; i++) Nodes[i] = NULL;
+	BTNode::InitBuffer(Buffer, Order);
+	Nodes[0] = &Root;
 	int result;
 	result = BTreeFile.Rewind();
 	if (!result) return result;
@@ -145,7 +152,7 @@ int BTree<keyType>::Insert(const keyType key, const int recAddr)
 {
 	int result; int level = Height - 1;
 	int newLargest = 0; keyType prevKey, largestKey;
-	BTNode * thisNode, *newNode, *parentNode;
+	BTNode * thisNode, *newNode=NULL, *parentNode;
 	thisNode = FindLeaf(key);
 
 	// test for special case of new largest key in tree
@@ -281,7 +288,7 @@ int BTree<keyType>::Search(const keyType key, const int recAddr)
 {
 	BTNode * leafNode;
 	leafNode = FindLeaf(key);
-	return leafNode->Search(key, recAddr, 0);
+	return leafNode->Search(key, recAddr, 1);
 }
 
 template <class keyType>

@@ -1,6 +1,9 @@
 #include"RecordManipulation.h"
 DelimFieldBuffer Membuf('|');
 DelimFieldBuffer Lecbuf('|');
+DelimFieldBuffer Purbuf('|');
+RecordFile<Purchase> PurchaseFile(Purbuf);
+BTree<char> Purchase_Index(4);
 TextIndexedFile<Member> Member_Index(Membuf, 20, 1200);
 TextIndexedFile<Lecture> Lecture_Index(Lecbuf, 20, 1200);
 vector<Member> &Members = Member_Index.Records;
@@ -13,6 +16,7 @@ bool lecture_mod = false;
 bool purchase_mod = false;
 bool memidx_exist = false;
 bool lecidx_exist = false;
+bool puridx_exist = false;
 using namespace std;
 
 void openIndex() {			// If There's no ind file, create then open.
@@ -43,6 +47,7 @@ void openIndex() {			// If There's no ind file, create then open.
 		Member_Index.Open(const_cast<char*>(filename.c_str()));
 	}
 	Members = Member_Index.Records;
+	// fileOfLecture
 	filename = "fileOfLecture";
 	result = Lecture_Index.Open(const_cast<char*>(filename.c_str()));
 	if (result == 0) {
@@ -68,6 +73,23 @@ void openIndex() {			// If There's no ind file, create then open.
 		Lecture_Index.Open(const_cast<char*>(filename.c_str()));
 	}
 	Lectures = Lecture_Index.Records;
+	// fileOfPurchase
+	filename = "fileOfPurchase.ind";
+	result = Purchase_Index.Open(const_cast<char*>("fileOfPurchase.ind"), ios::out | ios::in);
+	if (result == 0) {										// index file does not exist
+		PurchaseFile.Open(const_cast<char*>("fileOfPurchase.dat"), ios::in);
+		Purchase_Index.Create(const_cast<char*>("fileOfPurchase.ind"), ios::in | ios::out | ios::trunc);
+		while (1) {
+			Purchase P;
+			int recaddr = PurchaseFile.Read(P);
+			if (recaddr == -1) break;
+			Purchase_Index.Insert(P.Key()[0], recaddr);
+		}
+		PurchaseFile.Close();
+		Purchase_Index.Close();
+		Purchase_Index.Open(const_cast<char*>("fileOfPurchase.ind"), ios::out | ios::in);
+		puridx_exist = true;
+	}
 }
 
 void admin_menu() {
@@ -303,9 +325,7 @@ void general_menu(Member & m) {
 			clear_console();
 		}
 	}
-#ifndef DEBUG
 	delete_memories();
-#endif
 }
 
 bool login_window() {
@@ -358,15 +378,14 @@ void make_memories() {
 	char f1[] = "fileOfMember.dat";
 	char f2[] = "fileOfLecture.dat";
 	char f3[] = "fileOfPurchase.dat";
-	DelimFieldBuffer buf1('|'), buf2('|'), buf3('|');
+	DelimFieldBuffer buf1('|'), buf2('|');
 	RecordFile<Member> MemberFile(buf1);
 	RecordFile<Lecture> LectureFile(buf2);
-	RecordFile<Purchase> PurchaseFile(buf3);
 
 	openIndex();
 	Members = Member_Index.Records;
 	Lectures = Lecture_Index.Records;
-
+	// BTree에는 데이터 파일이 없다. Purchases가 파일 대용이다.(이제까지 그랬던 것 처럼)
 
 	Purchase P;
 	PurchaseFile.Open(f3, ios::in);
@@ -374,6 +393,18 @@ void make_memories() {
 		Purchases.push_back(P);
 	}
 	PurchaseFile.Close();
+	PurchaseFile.Open(f3, ios::in|ios::out);
+#ifdef DEBUG
+	int i = 0;
+	while (1) {
+		Purchase P;
+		int recaddr = PurchaseFile.Read(P);
+		if (recaddr == -1) break;
+		int res = Purchase_Index.Search(P.Key()[0]);
+		char temp = Purchases.at(i).Key()[0];
+	}
+	PurchaseFile.Rewind();
+#endif
 }
 
 void delete_memories() {
@@ -383,6 +414,7 @@ void delete_memories() {
 	if (lecture_mod) {
 		Lecture_Index.Rewrite(const_cast<char*>("fileOfLecture.dat"));
 	}
+	// TODO
 	if (purchase_mod) {
 		DelimFieldBuffer buffer('|');
 		RecordFile<Purchase> PurchaseFile(buffer);
@@ -396,6 +428,8 @@ void delete_memories() {
 	}
 	Member_Index.Close();
 	Lecture_Index.Close();
+	Purchase_Index.Close();
+	PurchaseFile.Close();
 	Members.clear();
 	Lectures.clear();
 	Purchases.clear();
@@ -525,7 +559,13 @@ void record_search() {
 			cin >> search_key;
 			cin.get();
 			idx = search_purchase(search_key);
-			if (idx.size() != 0) {
+			if (search_key.size() == 1 && idx.size() != 0) {					// search by PID
+				int recaddr = idx.at(0);
+				Purchase P;
+				PurchaseFile.Read(P, recaddr);
+				cout << P;
+			}
+			else if (idx.size() != 0) {
 				cout << endl;
 				for (auto it = idx.begin(); it != idx.end(); it++) {
 					cout << Purchases.at(*it);
@@ -595,7 +635,10 @@ void record_insert() {
 			}
 			else {
 				if (update_purchase(search_key)) {
-					purchase_mod = true;
+					// Insertion Done(Project 3)
+					Purchase P = Purchases.at(Purchases.size()-1);		// last purchase record
+					int recaddr = PurchaseFile.Append(P);
+					Purchase_Index.Insert(P.Key()[0], recaddr);
 					cout << endl << "Insert Purchase Record Success" << endl;
 				}
 			}
@@ -619,10 +662,11 @@ void delete_member(string search_key) {
 		idx = search_purchase(search_key);
 		n = 0;
 		for (auto it = idx.begin(); it != idx.end(); it++) {
-			purchase_mod = true;
+			//purchase_mod = true;
 			Purchases.erase(Purchases.begin() + *it - n);
 			n++;
 		}
+		RewritePurchase();
 		Member_Index.Delete(const_cast<char*>(search_key.c_str()));
 		member_mod = true;
 		cout << endl << "Delete Member Record and " << n << " Purchase Record(s) Successfully" << endl;
@@ -638,10 +682,11 @@ void delete_lecture(string search_key) {
 		idx = search_purchase(search_key);
 		n = 0;
 		for (auto it = idx.begin(); it != idx.end(); it++) {
-			purchase_mod = true;
+			//purchase_mod = true;
 			Purchases.erase(Purchases.begin() + *it - n);
 			n++;
 		}
+		RewritePurchase();
 		Lecture_Index.Delete(const_cast<char*>(search_key.c_str()));
 		lecture_mod = true;
 		cout << endl << "Delete Lecture Record and " << n << " Purchase Record(s) Successfully" << endl;
@@ -655,15 +700,37 @@ void delete_purchase(string search_key) {
 	int n;
 	idx = search_purchase(search_key);
 	if (search_PID(search_key)) {
-		for (auto it = Purchases.begin(); it != Purchases.end(); it++)
+		for (auto it = Purchases.begin(); it != Purchases.end(); it++) {
 			if (!search_key.compare(it->get_PID())) {
 				Purchases.erase(it); break;
 			}
-		purchase_mod = true;
+		}
+		//purchase_mod = true;
+		RewritePurchase();
 		cout << endl << "Delete 1 Purchase Record Successfully" << endl;
 	}
 	else
 		cout << endl << "There's no Such Purchase" << endl;
+}
+
+void RewritePurchase() {
+	// Rewrite Data and Index File according to Purchases vector
+	char datname[] = "fileOfPurchase.dat";
+	char indname[] = "fileOfPurchase.ind";
+	PurchaseFile.Close();
+	Purchase_Index.Close();
+	PurchaseFile.Create(datname, ios::out | ios::trunc);
+	Purchase_Index.Create(indname, ios::in | ios::out | ios::trunc);
+	for (auto it = Purchases.begin(); it != Purchases.end(); it++) {
+		int recaddr;
+		char key;
+		recaddr = PurchaseFile.Write(*it);
+		key = (*it).get_PID()[0];
+		Purchase_Index.Insert(key, recaddr);
+	}
+	Purchase_Index.Close();
+	Purchase_Index.Open(indname, ios::in|ios::out);
+	PurchaseFile.Rewind();
 }
 
 void record_delete() {
@@ -757,7 +824,8 @@ void record_update() {
 			}
 			else {
 				if (update_purchase(search_key)) {
-					purchase_mod = true;
+					//purchase_mod = true;
+					RewritePurchase();
 					cout << endl << "Update Purchase Record Success" << endl;
 				}
 			}
@@ -793,10 +861,18 @@ bool search_lecture(string key) {
 vector<int> search_purchase(string key) {
 	vector<int> ret;
 	int i = 0;
+	if (key.length() == 1) {						// search by PID(key is one character in Project 3)
+		int recaddr = Purchase_Index.Search(key[0]);
+		if (recaddr < 0) {							// does not exist in Index
+			return ret;
+		}
+		else {
+			ret.push_back(recaddr);
+			return ret;
+		}
+	}
 	for (auto it = Purchases.begin(); it != Purchases.end(); it++, i++) {
-		if (!key.compare(it->get_PID()))
-			ret.push_back(i);
-		else if (!key.compare(it->get_MID()))
+		if (!key.compare(it->get_MID()))
 			ret.push_back(i);
 		else if (!key.compare(it->get_LID()))
 			ret.push_back(i);
@@ -805,10 +881,15 @@ vector<int> search_purchase(string key) {
 }
 
 bool search_PID(string key) {
-	for (auto it = Purchases.begin(); it != Purchases.end(); it++)
+	/*for (auto it = Purchases.begin(); it != Purchases.end(); it++)
 		if (!key.compare(it->get_PID()))
 			return true;
 	return false;
+	*/
+	int recaddr = Purchase_Index.Search(key[0]);
+	if (recaddr < 0) return false;		// does not exist
+	else
+		return true;
 }
 
 bool insert_lecture(string key) {

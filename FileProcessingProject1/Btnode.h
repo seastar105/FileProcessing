@@ -10,35 +10,36 @@ class BTree;
 
 
 template <class keyType>
-class BTreeNode: public SimpleIndex <keyType>
-// this is the in-memory version of the BTreeNode
+class BTreeNode : public SimpleIndex <keyType>
+	// this is the in-memory version of the BTreeNode
 {
-  public:
+public:
 	BTreeNode(int maxKeys, int unique = 1);
 	~BTreeNode();
 	// Insert and Remove return
 	//	0 for failure
 	//	-1 for overflow
 	//	1 for success
-	int Insert (const keyType key, int recAddr);
-	int Remove (const keyType key, int recAddr = -1);
+	int Insert(const keyType key, int recAddr);
+	int Remove(const keyType key, int recAddr = -1);
 	//int Search (const keyType key) const;
-	void Print (ostream &) const;
-	int LargestKey (); // returns value of largest key
-	int Split (BTreeNode<keyType> * newNode); // move keys into newNode
-	int Merge (BTreeNode<keyType> * fromNode); // move keys from fromNode
-	int UpdateKey (keyType oldKey, keyType newKey, int recAddr = -1);
-	int Pack (IOBuffer& buffer) const;
-	int Unpack (IOBuffer& buffer); 
-	static int InitBuffer (FixedFieldBuffer & buffer, 
+	void Print(ostream &) const;
+	int LargestKey(); // returns value of largest key
+	int Split(BTreeNode<keyType> * newNode); // move keys into newNode
+	int Merge(BTreeNode<keyType> * fromNode); // move keys from fromNode
+	int UpdateKey(keyType oldKey, keyType newKey, int recAddr = -1);
+	int Pack(IOBuffer& buffer) const;
+	int Unpack(IOBuffer& buffer);
+	static int InitBuffer(FixedFieldBuffer & buffer,
 		int maxKeys, int keySize = sizeof(keyType));
 protected:
+	bool isLeaf;	// added variable
 	int NextNode; // address of next node at same level
 	int RecAddr; // address of this node in the BTree file
 	int MinKeys; // minimum number of keys in a node
 	int MaxBKeys; // maximum number of keys in a node
-	int Init ();
-	void Clear(){NumKeys = 0; RecAddr = -1;} 
+	int Init();
+	void Clear() { NumKeys = 0; RecAddr = -1; }
 	friend class BTree<keyType>;
 };
 
@@ -108,6 +109,9 @@ int BTreeNode<keyType>::Split(BTreeNode<keyType> * newNode)
 	newNode->NumKeys = numNewKeys;
 	this->NumKeys = midpt;
 	// Link the nodes together
+	// TODO : modified
+	newNode->NextNode = this->NextNode;
+	this->NextNode = newNode->RecAddr;
 	return 1;
 }
 
@@ -144,6 +148,7 @@ int BTreeNode<keyType>::UpdateKey(keyType oldKey, keyType newKey, int recAddr)
 template <class keyType>
 int BTreeNode<keyType>::Init()
 {
+	isLeaf = false;
 	NextNode = -1;
 	RecAddr = -1;
 	MaxBKeys = this->MaxKeys - 1;
@@ -163,6 +168,8 @@ int BTreeNode<keyType>::Pack(IOBuffer& buffer) const
 	int result;
 	buffer.Clear();
 	result = buffer.Pack(&(this->NumKeys));
+	result = buffer.Pack(&(this->isLeaf));				// pack isLeaf : modified
+	result = buffer.Pack(&(this->NextNode));			// pack NextNode : modified
 	for (int i = 0; i < this->NumKeys; i++)
 	{// note only pack the actual keys and recaddrs
 		result = result && buffer.Pack(&(this->Keys)[i]);
@@ -176,6 +183,8 @@ int BTreeNode<keyType>::Unpack(IOBuffer& buffer)
 {
 	int result;
 	result = buffer.Unpack(&(this->NumKeys));
+	result = buffer.Unpack(&(this->isLeaf));			// unpack isLeaf : modified
+	result = buffer.Unpack(&(this->NextNode));			// unpack NextNode : modified
 	for (int i = 0; i < this->NumKeys; i++)
 	{// note only pack the actual keys and recaddrs
 		result = result && buffer.Unpack(&(this->Keys)[i]);
@@ -189,9 +198,12 @@ int BTreeNode<keyType>::InitBuffer
 (FixedFieldBuffer & buffer, int maxKeys, int keySize)
 {// initialize a buffer for the btree node
 	buffer.AddField(sizeof(int));
+	buffer.AddField(sizeof(bool));				// add isLeaf field	: modified
+	buffer.AddField(sizeof(int));				// add NextNode field : modified
 	for (int i = 0; i < maxKeys; i++)
 	{
-		buffer.AddField(keySize); buffer.AddField(sizeof(int));
+		buffer.AddField(keySize);				// keySize is size of keyType
+		buffer.AddField(sizeof(int));			// add field for recaddr
 	}
 	return 1;
 }

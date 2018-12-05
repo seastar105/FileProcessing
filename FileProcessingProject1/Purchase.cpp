@@ -32,9 +32,10 @@ istream & operator >> (istream &is, Purchase &p) {
 	char *buffer = new  char[STDMAXBUF];
 	char *ptr, *context = NULL;
 	is.getline(buffer, STDMAXBUF);
-	ptr = strtok_s(buffer, "|", &context);
-	p.update_purchaseID(string(ptr));
-	ptr = strtok_s(NULL, "|", &context);
+	string tmp(1, buffer[0]);
+	p.update_purchaseID(tmp);
+	ptr = strtok_s(buffer+1, "|", &context);
+	//ptr = strtok_s(NULL, "|", &context);
 	p.update_lectureID(string(ptr));
 	ptr = strtok_s(NULL, "|", &context);
 	p.update_memberID(string(ptr));

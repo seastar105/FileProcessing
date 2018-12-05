@@ -10,7 +10,7 @@
 
 #define NUM_MEMBER 1000
 #define NUM_LECTURE 1000
-#define NUM_PURCHASE 10000
+#define NUM_PURCHASE 100
 #define MAXBUF 256
 using namespace std;
 
@@ -78,17 +78,29 @@ int main() {
 	// purchase write
 	fp.open(purchase);
 	fp << NUM_PURCHASE << endl;
+	// use 21~120 for purchase ID
+	bool check[100];
+	int pin = 28;
+	for (int i = 0; i < 100; i++) check[i] = false;
 	for (int i = 0; i < NUM_PURCHASE; i++) {
 		int a = rand() %  NUM_MEMBER;
 		string PID, LID, MID,Mileage;
 		while (a == 0) a = rand() % NUM_MEMBER;
 		MID = MEMBERS.at(a);
+		if (i == 0 || i == 1) MID = "TestUser";
 		LID = LECTURES.at(rand() % NUM_LECTURE);
-		for (int j = 0; j < 8; j++)
+		int n = rand() % 100;
+		while (check[n]) n = rand() % 100;
+		check[n] = true;
+		char tmp = pin + n;
+		if (tmp == '|') tmp = 27;
+		PID += tmp;// static_cast<char> (pin + n);
+		/*for (int j = 0; j < 8; j++)
 			PID += "0";
 		PID += to_string(i);
 		for (int j = PID.size(); j < 16; j++)
 			PID += "0";
+		*/
 		Mileage = "000000";
 		Mileage += rand() % 9 + '1';
 		Mileage += "000";
